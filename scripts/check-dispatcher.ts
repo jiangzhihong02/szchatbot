@@ -1,13 +1,12 @@
 // 冒烟检查：规则分發器（票 08）。运行：npx tsx scripts/check-dispatcher.ts
 // 失败会打印并返回非零退出码——不再无条件报成功。
 import { buildCards, dispatch } from "../src/lib/dispatcher";
-import { matchIntent, KEYWORDS } from "../src/lib/intents";
+import { matchIntent, KEYWORDS, aliasesFor } from "../src/lib/intents";
 import { PRESET_BUTTONS } from "../src/lib/presets";
+import type { IntentKey } from "../src/lib/presets";
 import type { Card } from "../src/lib/types";
 import { mapAmapForecast, mockWeather } from "../src/lib/weather";
 import { weatherTerm, windTerm, adviceKeyFor } from "../src/lib/i18n/weather-text";
-import { messages } from "../src/lib/i18n/messages";
-import { LOCALES } from "../src/lib/i18n/config";
 
 let passed = 0;
 const failures: string[] = [];
@@ -25,13 +24,41 @@ function cardOf(cards: Card[], type: Card["type"]): Card | undefined {
 }
 
 async function main() {
-  // ── 1. 每个别名（额外别名 + **三语**按钮 label）都命中自己的意图 ──
+  // ── 1. 走**同一個縫**：用 intents 導出的 aliasesFor，而非在測試裡重寫它的組合邏輯 ──
+  //        （先前測試自己拼 KEYWORDS ∪ labels，所以改 aliasesFor 測試照樣綠。）
+  const aliasSets = new Map<string, Set<string>>();
   for (const b of PRESET_BUTTONS) {
-    const labels = LOCALES.map((l) => messages[l].presets[b.key].label);
-    for (const w of [...KEYWORDS[b.key], ...labels]) {
-      check(`別名 "${w}" → ${b.key}`, matchIntent(w) === b.key);
+    const set = new Set(aliasesFor(b.key));
+    aliasSets.set(b.key, set);
+    check(`每個意圖都有額外別名（${b.key}）`, KEYWORDS[b.key].length > 0);
+    for (const w of set) check(`別名 "${w}" → ${b.key}`, matchIntent(w) === b.key);
+  }
+
+  // ── 1b. 語料性質：同一別名不得同時屬於兩個意圖（否則命中取決於表順序）──
+  const keys = [...aliasSets.keys()];
+  for (let i = 0; i < keys.length; i++) {
+    for (let j = i + 1; j < keys.length; j++) {
+      const shared = [...aliasSets.get(keys[i])!].filter((w) => aliasSets.get(keys[j])!.has(w));
+      check(`${keys[i]} 與 ${keys[j]} 無共用別名`, shared.length === 0);
+      if (shared.length) console.log(`     共用：${keys[i]} / ${keys[j]} → ${shared.join(", ")}`);
     }
   }
+
+  // ── 1c. 歧義短語 → 期望意圖（最長匹配的契約），以**資料表**斷言 ──
+  const AMBIGUOUS: [string, IntentKey][] = [
+    ["優惠", "deals"],
+    ["交通", "transportDeals"],
+    ["算優惠＋交通", "transportDeals"],
+    ["親子路線", "family"],
+    ["路線", "day"],
+    ["深圳優惠活動", "deals"],
+    ["查天氣", "weather"],
+    ["Find food", "food"],
+    ["Family route", "family"],
+    ["route", "day"],
+    ["Deals + transport", "transportDeals"],
+  ];
+  for (const [text, want] of AMBIGUOUS) check(`歧義「${text}」→ ${want}`, matchIntent(text) === want);
 
   // ── 2. 无冲突规则（契约）：優惠 類歸 🎫，交通 類歸 💰 ──
   check('無衝突：「優惠」→ deals', matchIntent("優惠") === "deals");
