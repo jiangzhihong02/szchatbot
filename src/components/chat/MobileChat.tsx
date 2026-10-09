@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "./useChat";
 import { CardView } from "./cards";
-import { PresetBar, HeadcountPicker } from "./parts";
+import { PresetBar, HeadcountPicker, MicButton } from "./parts";
 
 /** 手機版：對話優先（票 02 的 verdict）。 */
 export function MobileChat() {
-  const { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute } = useChat();
+  const { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute, note } =
+    useChat();
   const [draft, setDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -66,14 +67,15 @@ export function MobileChat() {
           <PresetBar onPick={sendIntent} disabled={busy} />
         </div>
         <div className="flex items-center gap-2 px-3 py-2">
-          <button
-            type="button"
-            disabled
-            title="語音輸入即將推出"
-            className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-slate-100 text-lg opacity-50"
-          >
-            🎤
-          </button>
+          <MicButton
+            disabled={busy}
+            onInterim={setDraft}
+            onFinal={(t) => {
+              send(t);
+              setDraft("");
+            }}
+            onNotice={note}
+          />
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

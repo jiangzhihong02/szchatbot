@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "./useChat";
 import { CardView } from "./cards";
-import { PresetBar, HeadcountPicker } from "./parts";
+import { PresetBar, HeadcountPicker, MicButton } from "./parts";
 
 /** 桌面版：分欄指令台（票 02 的 verdict）。左為動作與對話，右為大卡片舞台。 */
 export function DesktopConsole() {
-  const { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute } = useChat();
+  const { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute, note } =
+    useChat();
   const [draft, setDraft] = useState("");
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -68,14 +69,16 @@ export function DesktopConsole() {
         </div>
 
         <div className="flex items-center gap-2 border-t border-slate-200 p-3">
-          <button
-            type="button"
-            disabled
-            title="語音輸入即將推出"
-            className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-slate-100 opacity-50"
-          >
-            🎤
-          </button>
+          <MicButton
+            size="sm"
+            disabled={busy}
+            onInterim={setDraft}
+            onFinal={(t) => {
+              send(t);
+              setDraft("");
+            }}
+            onNotice={note}
+          />
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

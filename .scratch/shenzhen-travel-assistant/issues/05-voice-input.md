@@ -1,7 +1,7 @@
 # 任务：语音输入（浏览器 Web Speech API）
 
 Type: task
-Status: open
+Status: resolved
 Label: wayfinder:task
 
 ## Question
@@ -20,4 +20,20 @@ Label: wayfinder:task
 
 ## Blocked by
 
-（无）
+（無）
+
+## Answer
+
+**產出。**
+
+- **`src/lib/speech.ts`**：`useSpeechInput` hook，封裝瀏覽器原生 Web Speech API。
+  - `zh-HK`（粵語）優先；瀏覽器報 `language-not-supported` 時**自動回落 `zh-CN` 一次**。
+  - 對外只暴露 `supported / listening / error / start / stop / toggle` —— 即**雲端 ASR 接縫**：日後換 Whisper / 訊飛只改此檔，UI 不動。
+  - 卸載時 `abort()`；`start()` 有 try/catch。
+- **`src/components/chat/parts.tsx`**：`MicButton`。辨識中的**臨時文字填入輸入框**；**定稿直接送出**。錄音中紅色脈動。不支援 / 出錯 / 權限被拒皆以**對話訊息**提示（經 `useChat.note`）。
+- 首次使用彈一次性**隱私說明**：語音由瀏覽器語音服務辨識（Chrome 會上傳音訊至 Google），本助手不儲存錄音 —— **如實告知，不假稱本地處理**。
+- 兩個版面（手機 / 桌面）皆接上，取代原本的停用佔位按鈕。
+
+**驗證**：`tsc` 乾淨；冒煙 81 項全過。**瀏覽器端行為未經自動驗證**（需 Chrome / Edge + 麥克風權限；純 Node 無法測 Web Speech），待人工確認。
+
+**已知限制**：Safari / Firefox 多不支援 → 按鈕會提示改用打字（優雅降級）。

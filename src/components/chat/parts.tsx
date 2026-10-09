@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PRESET_BUTTONS } from "@/lib/intents";
 import type { IntentKey } from "@/lib/intents";
 import type { Travellers } from "@/lib/types";
+import { useSpeechInput } from "@/lib/speech";
 
 /** 六個預設按鈕（票 01 契約）。 */
 export function PresetBar({
@@ -114,5 +115,71 @@ export function HeadcountPicker({ onPick }: { onPick: (t: Travellers) => void })
         </button>
       </div>
     </div>
+  );
+}
+
+/**
+ * 語音輸入按鈕（票 05）。
+ * 辨識中的臨時文字 → onInterim（填入輸入框）；定稿 → onFinal（直接送出）。
+ * 不支援 / 出錯 / 權限被拒 → onNotice（以對話訊息提示）。
+ */
+export function MicButton({
+  onInterim,
+  onFinal,
+  onNotice,
+  disabled,
+  size = "md",
+}: {
+  onInterim: (text: string) => void;
+  onFinal: (text: string) => void;
+  onNotice: (msg: string) => void;
+  disabled?: boolean;
+  size?: "md" | "sm";
+}) {
+  const toldRef = useRef(false);
+  const lastErrRef = useRef<string | null>(null);
+
+  const speech = useSpeechInput((text, isFinal) => {
+    if (isFinal) onFinal(text);
+    else onInterim(text);
+  });
+
+  // 出錯時以對話訊息提示（去重複）
+  useEffect(() => {
+    if (speech.error && speech.error !== lastErrRef.current) {
+      lastErrRef.current = speech.error;
+      onNotice(speech.error);
+    }
+  }, [speech.error, onNotice]);
+
+  const handleClick = () => {
+    if (!speech.supported) {
+      onNotice("呢個瀏覽器唔支援語音輸入，直接打字就得（Chrome / Edge 支援最好）。");
+      return;
+    }
+    if (!speech.listening && !toldRef.current) {
+      toldRef.current = true;
+      onNotice("🎤 語音由瀏覽器嘅語音服務辨識（Chrome 會上傳音訊至 Google），本助手唔會儲存錄音。");
+    }
+    speech.toggle();
+  };
+
+  const px = size === "sm" ? "h-9 w-9 text-base" : "h-10 w-10 text-lg";
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={disabled}
+      title={speech.supported ? "語音輸入" : "此瀏覽器不支援語音輸入"}
+      aria-label={speech.listening ? "停止錄音" : "開始語音輸入"}
+      className={`flex ${px} flex-none items-center justify-center rounded-full transition disabled:opacity-40 ${
+        speech.listening
+          ? "animate-pulse bg-red-500 text-white"
+          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+      }`}
+    >
+      🎤
+    </button>
   );
 }

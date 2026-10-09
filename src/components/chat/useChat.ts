@@ -181,5 +181,10 @@ export function useChat() {
     }
   }
 
-  return { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute };
+  /** 以助手身分插入一則純文字提示（例如語音輸入的出錯 / 隱私說明）。 */
+  function note(text: string) {
+    append({ id: uid(), role: "assistant", text });
+  }
+
+  return { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute, note };
 }

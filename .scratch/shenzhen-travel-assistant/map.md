@@ -38,6 +38,7 @@ Status: open
 - [任務：接入 Claude API + system prompt 到 /api/chat](issues/04-claude-api-integration.md)：串流 SSE 的 `/api/chat`（Opus 4.8，adaptive thinking + low effort）+ 約 1000 字繁體 system prompt。**顯式隔離 shell 的 Claude Code 代理環境**，否則會靜默用 DeepSeek。降級路徑已驗證；真實路徑待填 key。
 - [任務：聊天界面與卡片組件](issues/09-chat-ui-implementation.md)：正式聊天界面——按 UA 分發（手機對話優先 / 桌面分欄指令台）+ 5 種卡片 + `/api/dispatch`。純定義拆到客戶端安全的 `src/lib/intents.ts`。已驗證。
 - [任務：路線地圖（高德路徑規劃）](issues/10-amap-route-map.md)：站點座標一次地理編碼烘入資料；伺服器端逐段駕車路徑規劃 → **高德靜態地圖**，經 `/api/route-map` **代理取圖**（key 不外洩）。原定 JS 互動地圖因缺第二把 key 改為靜態圖。已驗證。
+- [任務：語音輸入（瀏覽器 Web Speech）](issues/05-voice-input.md)：`useSpeechInput` hook（`zh-HK` 優先、回落 `zh-CN`；留雲端 ASR 接縫）+ `MicButton`（臨時文字填框、定稿即送；出錯/權限/隱私以對話訊息提示）。tsc 與冒煙通過；瀏覽器行為待人工驗證。
 
 ## Not yet specified
 
