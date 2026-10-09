@@ -8,7 +8,7 @@ import {
   KEYWORDS,
 } from "../src/lib/dispatcher";
 import type { Card } from "../src/lib/types";
-import { mapQWeather3d, mockWeather } from "../src/lib/weather";
+import { mapAmapForecast, mockWeather } from "../src/lib/weather";
 
 let passed = 0;
 const failures: string[] = [];
@@ -88,18 +88,22 @@ async function main() {
 
   // 天氣：測「純映射」與 mock 形狀。
   // （真實 fetch 路徑跑在 Next runtime 的 `use cache` 裡，純 Node 下無法執行，故不在此測。）
-  const mapped = mapQWeather3d({
-    code: "200",
-    daily: [
-      { fxDate: "2026-10-09", textDay: "多雲", tempMax: "29", tempMin: "23", humidity: "70" },
-      { fxDate: "2026-10-10", textDay: "短暫陣雨", tempMax: "28", tempMin: "23", humidity: "78" },
-      { fxDate: "2026-10-11", textDay: "晴", tempMax: "31", tempMin: "24", humidity: "65" },
+  const mapped = mapAmapForecast({
+    status: "1",
+    forecasts: [
+      {
+        casts: [
+          { date: "2026-10-09", dayweather: "多雲", nightweather: "多雲", daytemp: "29", nighttemp: "23", daywind: "東風" },
+          { date: "2026-10-10", dayweather: "短暫陣雨", nightweather: "多雲", daytemp: "28", nighttemp: "23", daywind: "東南風" },
+          { date: "2026-10-11", dayweather: "晴", nightweather: "晴", daytemp: "31", nighttemp: "24", daywind: "南風" },
+        ],
+      },
     ],
   });
-  check("mapQWeather3d 取 3 天", mapped.length === 3);
-  check("mapQWeather3d 標籤為 今日/明日/後日", mapped[0].date === "今日" && mapped[2].date === "後日");
-  check("mapQWeather3d 帶濕度", mapped.every((d) => typeof d.humidity === "number"));
-  check("mapQWeather3d 非 200 → 空", mapQWeather3d({ code: "404" }).length === 0);
+  check("mapAmapForecast 取 3 天", mapped.length === 3);
+  check("mapAmapForecast 標籤為 今日/明日/後日", mapped[0].date === "今日" && mapped[2].date === "後日");
+  check("mapAmapForecast 帶日夜天氣與風", mapped.every((d) => !!d.text && !!d.textNight && !!d.wind));
+  check("mapAmapForecast 非成功 → 空", mapAmapForecast({ status: "0" }).length === 0);
   const mw = mockWeather();
   check("mock 3 天 + 建議", mw.days.length === 3 && mw.advice.length > 0);
 

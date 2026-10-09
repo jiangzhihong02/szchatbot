@@ -39,11 +39,12 @@ export interface RouteCardData {
 }
 
 export interface WeatherDay {
-  date: string; // 日期，或「今日 / 明日 / 後日」
-  text: string; // 天气现象
-  tempMax: number;
-  tempMin: number;
-  humidity: number;
+  date: string; // 「今日 / 明日 / 後日」
+  text: string; // 白天天气现象
+  textNight?: string; // 夜间天气现象
+  tempMax: number; // 白天温度
+  tempMin: number; // 夜间温度
+  wind?: string; // 风向
 }
 
 /** 天气卡片：按按钮契约显示「今日 + 未来 2 天」。 */
@@ -51,7 +52,7 @@ export interface WeatherData {
   city: string;
   days: WeatherDay[];
   advice: string;
-  source: "qweather" | "mock";
+  source: "amap" | "mock";
 }
 
 export interface TransportPlan {
