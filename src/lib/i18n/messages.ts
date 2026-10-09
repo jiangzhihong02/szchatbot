@@ -1,5 +1,6 @@
 import type { Locale } from "./config";
 import type { IntentKey } from "../presets";
+import type { TransportKey, DiscountKey } from "../types";
 
 /**
  * UI 文案（票 11）。**三語各自撰寫**，不直譯 —— 每語用母語的自然口吻。
@@ -66,8 +67,8 @@ export interface Messages {
   };
   /** 規則引擎產出的文案（票 11 第三批）：交通方案、優惠項、支付提示、天氣建議。 */
   engine: {
-    transport: Record<"metro" | "carChild" | "car" | "charter", { mode: string; reason: string; cost: string }>;
-    discount: Record<"child" | "family" | "group" | "online", { name: string; detail: string }>;
+    transport: Record<TransportKey, { mode: string; reason: string; cost: string }>;
+    discount: Record<DiscountKey, { name: string; detail: string }>;
     paymentTips: string[];
     weatherAdvice: { rain: string; hot: string; cold: string; ok: string };
     estimateNote: string;

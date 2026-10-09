@@ -80,6 +80,8 @@ export interface PricingData {
 
 /** 美食清单卡里的一项。featured 决定是否进入首发「找美食」的 3–4 家。 */
 export interface FoodData {
+  /** 穩定識別碼 —— 譯文疊層以此為鍵。**勿用顯示名當身份**：改名會讓譯文靜默丟失。 */
+  id: string;
   name: string;
   area: string;
   category: string;

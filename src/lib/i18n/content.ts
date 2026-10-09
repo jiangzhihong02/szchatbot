@@ -13,10 +13,14 @@ import { CONTENT_I18N } from "../data/i18n-generated";
  * 鍵的構造器與**欄位清單**都在此定義，其他工具一律 import 這裡，避免兩邊漂移。
  */
 
-export const kRoute = (id: string, field: string) => `${id}.${field}`;
-export const kStop = (id: string, i: number, field: string) => `${id}.stop${i}.${field}`;
-export const kFood = (i: number, field: string) => `${i}.${field}`;
-export const kDeal = (id: string, field: string) => `${id}.${field}`;
+/**
+ * 疊層的鍵 = **命名空間 + 正本 id + 欄位**。
+ * 命名空間讓「路線 id」與「美食 id」即使同名（例如 `hakka-longgang`）也不會撞鍵 —— 結構上不可能碰撞。
+ */
+export const kRoute = (id: string, field: string) => `route.${id}.${field}`;
+export const kStop = (id: string, i: number, field: string) => `route.${id}.stop${i}.${field}`;
+export const kFood = (id: string, field: string) => `food.${id}.${field}`;
+export const kDeal = (id: string, field: string) => `deal.${id}.${field}`;
 
 export const ROUTE_FIELDS = ["title", "theme", "area", "bestFor", "tips"] as const;
 export const STOP_FIELDS = ["name", "area", "desc"] as const;
@@ -30,7 +34,7 @@ export function allContentKeys(): string[] {
     for (const f of ROUTE_FIELDS) keys.push(kRoute(r.id, f));
     r.stops.forEach((_, i) => STOP_FIELDS.forEach((f) => keys.push(kStop(r.id, i, f))));
   }
-  FOODS.forEach((_, i) => FOOD_FIELDS.forEach((f) => keys.push(kFood(i, f))));
+  FOODS.forEach((f) => FOOD_FIELDS.forEach((field) => keys.push(kFood(f.id, field))));
   for (const d of DEALS) DEAL_FIELDS.forEach((f) => keys.push(kDeal(d.id, f)));
   return keys;
 }
@@ -61,20 +65,15 @@ export function localizeRoute(r: RouteData, locale: Locale): RouteData {
   };
 }
 
-/**
- * 美食譯文以**原始索引**為鍵（卡片裡是篩選後的子集，索引對不上），
- * 故這裡用原名回查原始索引。
- */
+/** 美食以 `FoodData.id` 為鍵（穩定；改名不影響譯文）。 */
 export function localizeFood(f: FoodData, locale: Locale): FoodData {
   if (locale === "zh-Hant") return f;
-  const i = FOODS.findIndex((x) => x.name === f.name);
-  if (i < 0) return f;
   return {
     ...f,
-    name: tr(kFood(i, "name"), locale, f.name),
-    area: tr(kFood(i, "area"), locale, f.area),
-    category: tr(kFood(i, "category"), locale, f.category),
-    mustTry: tr(kFood(i, "mustTry"), locale, f.mustTry),
+    name: tr(kFood(f.id, "name"), locale, f.name),
+    area: tr(kFood(f.id, "area"), locale, f.area),
+    category: tr(kFood(f.id, "category"), locale, f.category),
+    mustTry: tr(kFood(f.id, "mustTry"), locale, f.mustTry),
   };
 }
 
