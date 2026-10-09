@@ -1,6 +1,8 @@
 import type { Locale } from "./config";
 import type { RouteData, FoodData, DealData } from "../types";
+import { ROUTES } from "../data/routes";
 import { FOODS } from "../data/foods";
+import { DEALS } from "../data/deals";
 import { CONTENT_I18N } from "../data/i18n-generated";
 
 /**
@@ -8,13 +10,30 @@ import { CONTENT_I18N } from "../data/i18n-generated";
  * 繁體是**正本**（`lib/data/*`）；`zh-Hans` 與 `en` 為譯文疊加層（`data/i18n-generated.ts`）。
  * 缺譯文時一律回退原文，故英文界面下最壞情況只是看到繁體，不會出錯。
  *
- * 鍵的構造器在此定義，**生成腳本也 import 這裡**，避免兩邊漂移。
+ * 鍵的構造器與**欄位清單**都在此定義，其他工具一律 import 這裡，避免兩邊漂移。
  */
 
 export const kRoute = (id: string, field: string) => `${id}.${field}`;
 export const kStop = (id: string, i: number, field: string) => `${id}.stop${i}.${field}`;
 export const kFood = (i: number, field: string) => `${i}.${field}`;
 export const kDeal = (id: string, field: string) => `${id}.${field}`;
+
+export const ROUTE_FIELDS = ["title", "theme", "area", "bestFor", "tips"] as const;
+export const STOP_FIELDS = ["name", "area", "desc"] as const;
+export const FOOD_FIELDS = ["name", "area", "category", "mustTry"] as const;
+export const DEAL_FIELDS = ["title", "merchant", "area", "summary", "validUntil", "sourceName"] as const;
+
+/** 正本裡所有**應有譯文**的鍵（順序固定，供生成與校驗共用）。 */
+export function allContentKeys(): string[] {
+  const keys: string[] = [];
+  for (const r of ROUTES) {
+    for (const f of ROUTE_FIELDS) keys.push(kRoute(r.id, f));
+    r.stops.forEach((_, i) => STOP_FIELDS.forEach((f) => keys.push(kStop(r.id, i, f))));
+  }
+  FOODS.forEach((_, i) => FOOD_FIELDS.forEach((f) => keys.push(kFood(i, f))));
+  for (const d of DEALS) DEAL_FIELDS.forEach((f) => keys.push(kDeal(d.id, f)));
+  return keys;
+}
 
 type Overlay = Record<string, { "zh-Hans": string; en: string }>;
 
@@ -67,5 +86,7 @@ export function localizeDeal(d: DealData, locale: Locale): DealData {
     merchant: tr(kDeal(d.id, "merchant"), locale, d.merchant),
     area: tr(kDeal(d.id, "area"), locale, d.area),
     summary: tr(kDeal(d.id, "summary"), locale, d.summary),
+    validUntil: d.validUntil ? tr(kDeal(d.id, "validUntil"), locale, d.validUntil) : d.validUntil,
+    sourceName: tr(kDeal(d.id, "sourceName"), locale, d.sourceName),
   };
 }

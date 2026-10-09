@@ -1,14 +1,11 @@
 // 冒烟检查：规则分發器（票 08）。运行：npx tsx scripts/check-dispatcher.ts
 // 失败会打印并返回非零退出码——不再无条件报成功。
-import {
-  matchIntent,
-  buildCards,
-  dispatch,
-  PRESET_BUTTONS,
-  KEYWORDS,
-} from "../src/lib/dispatcher";
+import { buildCards, dispatch } from "../src/lib/dispatcher";
+import { matchIntent, KEYWORDS } from "../src/lib/intents";
+import { PRESET_BUTTONS } from "../src/lib/presets";
 import type { Card } from "../src/lib/types";
 import { mapAmapForecast, mockWeather } from "../src/lib/weather";
+import { weatherTerm, windTerm, adviceKeyFor } from "../src/lib/i18n/weather-text";
 import { messages } from "../src/lib/i18n/messages";
 import { LOCALES } from "../src/lib/i18n/config";
 
@@ -38,8 +35,8 @@ async function main() {
 
   // ── 2. 无冲突规则（契约）：優惠 類歸 🎫，交通 類歸 💰 ──
   check('無衝突：「優惠」→ deals', matchIntent("優惠") === "deals");
-  check('無衝突：「交通」→ pricing', matchIntent("交通") === "pricing");
-  check('最長匹配：「算優惠＋交通」→ pricing', matchIntent("算優惠＋交通") === "pricing");
+  check('無衝突：「交通」→ transportDeals', matchIntent("交通") === "transportDeals");
+  check('最長匹配：「算優惠＋交通」→ transportDeals', matchIntent("算優惠＋交通") === "transportDeals");
 
   // ── 3. 未命中 → null（交給 /api/chat） ──
   for (const t of ["今日食咩好", "hello world", "   ", ""]) {
@@ -88,40 +85,35 @@ async function main() {
     check("親子 → route 卡", false);
   }
 
-  // 天氣：測「純映射」與 mock 形狀。
-  // （真實 fetch 路徑跑在 Next runtime 的 `use cache` 裡，純 Node 下無法執行，故不在此測。）
+  // 天氣：測「純映射」—— 高德詞條原樣保留，翻譯在前端
   const mapped = mapAmapForecast({
     status: "1",
     forecasts: [
       {
         casts: [
-          { date: "2026-10-09", dayweather: "多雲", nightweather: "多雲", daytemp: "29", nighttemp: "23", daywind: "東風" },
-          { date: "2026-10-10", dayweather: "短暫陣雨", nightweather: "多雲", daytemp: "28", nighttemp: "23", daywind: "東南風" },
-          { date: "2026-10-11", dayweather: "晴", nightweather: "晴", daytemp: "31", nighttemp: "24", daywind: "南風" },
+          { date: "2026-10-09", dayweather: "多云", nightweather: "多云", daytemp: "29", nighttemp: "23", daywind: "东" },
+          { date: "2026-10-10", dayweather: "阵雨", nightweather: "多云", daytemp: "28", nighttemp: "23", daywind: "东南" },
+          { date: "2026-10-11", dayweather: "晴", nightweather: "晴", daytemp: "31", nighttemp: "24", daywind: "南" },
         ],
       },
     ],
   });
   check("mapAmapForecast 取 3 天", mapped.length === 3);
-  check("mapAmapForecast 標籤為 今日/明日/後日", mapped[0].date === "今日" && mapped[2].date === "後日");
+  check("mapAmapForecast 用 dayOffset 0/1/2", mapped[0].dayOffset === 0 && mapped[2].dayOffset === 2);
   check("mapAmapForecast 帶日夜天氣與風", mapped.every((d) => !!d.text && !!d.textNight && !!d.wind));
   check("mapAmapForecast 非成功 → 空", mapAmapForecast({ status: "0" }).length === 0);
-  const mw = mockWeather("zh-Hant");
-  check("mock 3 天 + 建議", mw.days.length === 3 && mw.advice.length > 0);
+  check("mock 3 天", mockWeather().days.length === 3);
 
-  // 規則引擎文案隨語言（票 11 第三批）
-  const prHant = await buildCards("pricing", { travellers: { adults: 2, children: 1 } }, "zh-Hant");
-  const prEn = await buildCards("pricing", { travellers: { adults: 2, children: 1 } }, "en");
-  const p1 = cardOf(prHant, "pricing");
-  const p2 = cardOf(prEn, "pricing");
-  if (p1?.type === "pricing" && p2?.type === "pricing") {
-    check("交通方案隨語言", p1.data.transport.mode !== p2.data.transport.mode);
-    check("優惠項隨語言", p1.data.discounts[0].name !== p2.data.discounts[0].name);
-    check("支付提示隨語言", p1.data.paymentTips[0] !== p2.data.paymentTips[0]);
-  } else {
-    check("pricing 卡（zh-Hant / en）", false);
-  }
-  check("天氣建議隨語言", mockWeather("zh-Hant").advice !== mockWeather("en").advice);
+  // 天氣詞表與建議（前端渲染；切語言時既有的卡也會跟著變）
+  check(
+    "詞表：晴 三語",
+    weatherTerm("晴", "en") === "Clear" && weatherTerm("晴", "zh-Hant") === "晴" && weatherTerm("晴", "zh-Hans") === "晴"
+  );
+  check("詞表：未收錄原樣回傳", weatherTerm("某某", "en") === "某某");
+  check("風向：東南", windTerm("东南", "en") === "SE" && windTerm("东南", "zh-Hant") === "東南");
+  check("建議：有雨 → rain", adviceKeyFor([{ dayOffset: 0, text: "阵雨", tempMax: 30, tempMin: 25 }]) === "rain");
+  check("建議：晴 30° → ok", adviceKeyFor([{ dayOffset: 0, text: "晴", tempMax: 30, tempMin: 25 }]) === "ok");
+  check("建議：晴 35° → hot", adviceKeyFor([{ dayOffset: 0, text: "晴", tempMax: 35, tempMin: 25 }]) === "hot");
 
   // 優惠：清單 + 每項帶來源（契約要求「來源」欄）
   const deals = await buildCards("deals");
@@ -133,23 +125,35 @@ async function main() {
     check("優惠活動 → dealList 卡", false);
   }
 
-  // 優惠＋交通：缺人數應拋錯（不被靜默默認蓋住）
+  // 交通優惠卡：缺出行組合應拋錯（不被靜默默認蓋住）
   let threw = false;
   try {
-    await buildCards("pricing");
+    await buildCards("transportDeals");
   } catch {
     threw = true;
   }
-  check("pricing 缺 travellers 時拋錯", threw);
+  check("transportDeals 缺 travellers 時拋錯", threw);
 
-  const pr = await buildCards("pricing", { travellers: { adults: 2, children: 1 } });
-  const pc = cardOf(pr, "pricing");
-  if (pc && pc.type === "pricing") {
-    check("pricing 回報人數", pc.data.travellers.adults === 2 && pc.data.travellers.children === 1);
-    check("pricing 帶交通方案", pc.data.transport.mode.length > 0);
-    check("pricing 帶優惠項", pc.data.discounts.length > 0);
+  const pr = await buildCards("transportDeals", { travellers: { adults: 2, children: 1 } });
+  const pc = cardOf(pr, "transportDeals");
+  if (pc && pc.type === "transportDeals") {
+    check("回報出行組合", pc.data.travellers.adults === 2 && pc.data.travellers.children === 1);
+    check("帶交通方案鍵", !!pc.data.transport);
+    check("帶優惠項鍵", pc.data.discounts.length > 0);
   } else {
-    check("算優惠＋交通 → pricing 卡", false);
+    check("算優惠＋交通 → transportDeals 卡", false);
+  }
+
+  // 規則隨出行組合變化（純結構、無文案）
+  const two = await buildCards("transportDeals", { travellers: { adults: 2, children: 0 } });
+  const six = await buildCards("transportDeals", { travellers: { adults: 6, children: 0 } });
+  const c2 = cardOf(two, "transportDeals");
+  const c6 = cardOf(six, "transportDeals");
+  if (c2?.type === "transportDeals" && c6?.type === "transportDeals") {
+    check("2 大人 → metro", c2.data.transport === "metro");
+    check("6 大人 → charter", c6.data.transport === "charter");
+    check("2 大人無團體票", !c2.data.discounts.includes("group"));
+    check("6 大人有團體票", c6.data.discounts.includes("group"));
   }
 
   // ── 6. dispatch：matched:false 與 needsInput 路徑 ──

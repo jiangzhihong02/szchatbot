@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useChat } from "./useChat";
 import { CardView } from "./cards";
-import { PresetBar, HeadcountPicker, MicButton } from "./parts";
+import { PresetBar } from "./PresetBar";
+import { TravellersPicker } from "./TravellersPicker";
+import { Composer } from "./Composer";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useI18n } from "@/components/i18n/LocaleProvider";
 
 /** 桌面版：分欄指令台（票 02 的 verdict）。左為動作與對話，右為大卡片舞台。 */
 export function DesktopConsole() {
   const { m } = useI18n();
-  const { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute, note } = useChat();
-  const [draft, setDraft] = useState("");
+  const { messages, busy, awaitingTravellers, send, sendIntent, chooseTravellers, cycleRoute, postNotice } = useChat();
   const logRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,14 +20,8 @@ export function DesktopConsole() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
-  const submit = () => {
-    if (!draft.trim()) return;
-    send(draft);
-    setDraft("");
-  };
-
-  const staged = [...messages].reverse().find((msg) => (msg.cards?.length ?? 0) > 0);
-  const pending = messages.find((msg) => msg.id === awaitingHeadcount);
+  const stagedCards = [...messages].reverse().find((msg) => (msg.cards?.length ?? 0) > 0);
+  const pending = messages.find((msg) => msg.id === awaitingTravellers);
 
   return (
     <div className="flex h-screen bg-slate-100">
@@ -67,41 +62,16 @@ export function DesktopConsole() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 border-t border-slate-200 p-3">
-          <MicButton
-            size="sm"
-            disabled={busy}
-            onInterim={setDraft}
-            onFinal={(t) => {
-              send(t);
-              setDraft("");
-            }}
-            onNotice={note}
-          />
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submit()}
-            placeholder={m.composer.placeholder}
-            className="h-9 flex-1 rounded-full bg-slate-100 px-3 text-sm outline-none"
-          />
-          <button
-            type="button"
-            onClick={submit}
-            disabled={busy || !draft.trim()}
-            aria-label={m.composer.send}
-            className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-teal-600 text-white transition disabled:opacity-40"
-          >
-            ↑
-          </button>
+        <div className="border-t border-slate-200">
+          <Composer size="sm" onSend={send} onNotice={postNotice} disabled={busy} />
         </div>
       </aside>
 
       <main className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-3xl space-y-4">
-          {pending && <HeadcountPicker onPick={(t) => chooseHeadcount(pending.id, t)} />}
-          {staged ? (
-            staged.cards!.map((c, i) => <CardView key={i} card={c} onCycleRoute={() => cycleRoute(staged)} />)
+          {pending && <TravellersPicker onPick={(t) => chooseTravellers(pending.id, t)} />}
+          {stagedCards ? (
+            stagedCards.cards!.map((c, i) => <CardView key={i} card={c} onCycleRoute={() => cycleRoute(stagedCards)} />)
           ) : (
             !pending && (
               <div className="flex h-64 items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 px-6 text-center text-sm text-slate-400">

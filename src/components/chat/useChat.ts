@@ -8,6 +8,9 @@ import { useI18n } from "@/components/i18n/LocaleProvider";
 /**
  * 聊天狀態（兩種版面共用）。
  * 流程：先打 /api/dispatch 走確定性路徑；未命中才打 /api/chat 串流問 LLM。
+ *
+ * 分發不回傳文案（只有結構化卡片），故切語言時已顯示的卡片會即時跟著變；
+ * 只有 LLM 的**自由問答**需要把 locale 送給伺服器（決定回答語言）。
  */
 
 export type ChatMsg = {
@@ -83,22 +86,22 @@ export function useChat() {
     { id: uid(), role: "assistant", text: m.greeting },
   ]);
   const [busy, setBusy] = useState(false);
-  const [awaitingHeadcount, setAwaitingHeadcount] = useState<string | null>(null);
+  const [awaitingTravellers, setAwaitingTravellers] = useState<string | null>(null);
   const msgsRef = useRef(messages);
   msgsRef.current = messages;
 
-  const append = (m: ChatMsg) => setMessages((p) => [...p, m]);
+  const append = (msg: ChatMsg) => setMessages((prev) => [...prev, msg]);
   const replace = (id: string, next: Partial<ChatMsg>) =>
-    setMessages((p) => p.map((m) => (m.id === id ? { ...m, ...next } : m)));
+    setMessages((prev) => prev.map((msg) => (msg.id === id ? { ...msg, ...next } : msg)));
 
-  /** 按鈕意圖 → 卡片（pricing 缺人數則彈快捷選項）。 */
+  /** 按鈕意圖 → 卡片（交通優惠卡缺出行組合則彈快捷選項）。 */
   async function showIntent(intent: IntentKey, opts: { travellers?: Travellers; routeIndex?: number } = {}) {
     const id = uid();
     append({ id, role: "assistant", cards: [], fromIntent: intent, routeIndex: opts.routeIndex ?? 0 });
-    const r = await callDispatch({ intent, ...opts, locale });
+    const r = await callDispatch({ intent, ...opts });
     if (r.matched && r.needsInput === "travellers") {
-      replace(id, { cards: undefined, text: m.headcount.prompt });
-      setAwaitingHeadcount(id);
+      replace(id, { cards: undefined, text: m.travellers.prompt });
+      setAwaitingTravellers(id);
     } else if (r.matched) {
       replace(id, { cards: r.cards });
     }
@@ -117,11 +120,11 @@ export function useChat() {
     }
   }
 
-  async function chooseHeadcount(msgId: string, travellers: Travellers) {
-    setAwaitingHeadcount(null);
+  async function chooseTravellers(msgId: string, travellers: Travellers) {
+    setAwaitingTravellers(null);
     setBusy(true);
     try {
-      const r = await callDispatch({ intent: "pricing", travellers, locale });
+      const r = await callDispatch({ intent: "transportDeals", travellers });
       if (r.matched) replace(msgId, { text: undefined, cards: r.cards });
     } catch {
       replace(msgId, { text: m.errors.calc });
@@ -135,7 +138,7 @@ export function useChat() {
     const next = (msg.routeIndex ?? 0) + 1;
     setBusy(true);
     try {
-      const r = await callDispatch({ intent: msg.fromIntent, routeIndex: next, locale });
+      const r = await callDispatch({ intent: msg.fromIntent, routeIndex: next });
       if (r.matched) replace(msg.id, { cards: r.cards, routeIndex: next });
     } finally {
       setBusy(false);
@@ -147,19 +150,19 @@ export function useChat() {
     if (!text || busy) return;
     // 先記下當前對話文字（不含本則），供未命中時餵 LLM。
     const prior = msgsRef.current
-      .filter((m) => m.text && m.text.trim())
-      .map((m) => ({ role: m.role, content: m.text as string }))
+      .filter((msg) => msg.text && msg.text.trim())
+      .map((msg) => ({ role: msg.role, content: msg.text as string }))
       .slice(-12);
 
     setBusy(true);
     append({ id: uid(), role: "user", text });
     try {
-      const r = await callDispatch({ text, locale });
+      const r = await callDispatch({ text });
       if (r.matched) {
         if (r.needsInput === "travellers") {
           const id = uid();
-          append({ id, role: "assistant", text: m.headcount.prompt, fromIntent: "pricing" });
-          setAwaitingHeadcount(id);
+          append({ id, role: "assistant", text: m.travellers.prompt, fromIntent: "transportDeals" });
+          setAwaitingTravellers(id);
         } else {
           append({ id: uid(), role: "assistant", cards: r.cards, fromIntent: r.intent, routeIndex: 0 });
         }
@@ -170,7 +173,7 @@ export function useChat() {
       const id = uid();
       append({ id, role: "assistant", text: "", streaming: true });
       await streamChat([...prior, { role: "user", content: text }], locale, (delta) =>
-        setMessages((p) => p.map((m) => (m.id === id ? { ...m, text: (m.text ?? "") + delta } : m)))
+        setMessages((prev) => prev.map((msg) => (msg.id === id ? { ...msg, text: (msg.text ?? "") + delta } : msg)))
       );
       replace(id, { streaming: false });
     } catch {
@@ -181,9 +184,9 @@ export function useChat() {
   }
 
   /** 以助手身分插入一則純文字提示（例如語音輸入的出錯 / 隱私說明）。 */
-  function note(text: string) {
+  function postNotice(text: string) {
     append({ id: uid(), role: "assistant", text });
   }
 
-  return { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute, note };
+  return { messages, busy, awaitingTravellers, send, sendIntent, chooseTravellers, cycleRoute, postNotice };
 }

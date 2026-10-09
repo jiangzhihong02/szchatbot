@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * - `zh-HK`（粵語）優先；若瀏覽器報 `language-not-supported`，自動回落 `zh-CN`。
  * - 支援度：Chrome / Edge 佳；Safari / Firefox 多不支援 → `supported` 為 false，UI 需提示手打。
  * - **接縫**：對外只暴露 start/stop，日後要換雲端 ASR（Whisper / 訊飛），改此檔即可，UI 不動。
+ * - ⚠️ 本檔**不含任何面向使用者的文案**：錯誤以**代號**回傳，由 UI 查 `messages.voice`。
  *
  * 隱私：Web Speech 由瀏覽器／作業系統的語音服務辨識（Chrome 會將音訊上傳至 Google），
  * 並非本地處理 —— UI 需如實告知使用者。
@@ -38,7 +39,19 @@ type RecognitionLike = {
 
 type RecognitionCtor = new () => RecognitionLike;
 
-function getCtor(): RecognitionCtor | null {
+/** 錯誤代號 —— 對應 `messages.voice` 的鍵。 */
+export type SpeechErrorKey = "unsupported" | "notAllowed" | "noSpeech" | "error" | "startFail";
+
+export interface SpeechInput {
+  supported: boolean;
+  listening: boolean;
+  error: SpeechErrorKey | null;
+  start: () => void;
+  stop: () => void;
+  toggle: () => void;
+}
+
+export function getRecognitionCtor(): RecognitionCtor | null {
   if (typeof window === "undefined") return null;
   const w = window as unknown as {
     SpeechRecognition?: RecognitionCtor;
@@ -47,22 +60,13 @@ function getCtor(): RecognitionCtor | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
-export interface SpeechInput {
-  supported: boolean;
-  listening: boolean;
-  error: string | null;
-  start: () => void;
-  stop: () => void;
-  toggle: () => void;
-}
-
 /**
  * @param onText 每段辨識文字回呼（interim 與 final 都會呼叫；final 段落已定稿）
  */
 export function useSpeechInput(onText: (text: string, isFinal: boolean) => void): SpeechInput {
   const [supported, setSupported] = useState(false);
   const [listening, setListening] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<SpeechErrorKey | null>(null);
   const recRef = useRef<RecognitionLike | null>(null);
   const langRef = useRef<string>("zh-HK");
   const retriedRef = useRef(false);
@@ -70,7 +74,7 @@ export function useSpeechInput(onText: (text: string, isFinal: boolean) => void)
   onTextRef.current = onText;
 
   useEffect(() => {
-    setSupported(getCtor() !== null);
+    setSupported(getRecognitionCtor() !== null);
     return () => recRef.current?.abort();
   }, []);
 
@@ -80,9 +84,9 @@ export function useSpeechInput(onText: (text: string, isFinal: boolean) => void)
   }, []);
 
   const start = useCallback(() => {
-    const Ctor = getCtor();
+    const Ctor = getRecognitionCtor();
     if (!Ctor) {
-      setError("此瀏覽器不支援語音輸入，請直接打字。");
+      setError("unsupported");
       return;
     }
     setError(null);
@@ -114,13 +118,7 @@ export function useSpeechInput(onText: (text: string, isFinal: boolean) => void)
         start();
         return;
       }
-      const msg =
-        e.error === "not-allowed" || e.error === "service-not-allowed"
-          ? "未取得麥克風權限，請在瀏覽器允許後再試。"
-          : e.error === "no-speech"
-            ? "冇聽到聲音，再試一次？"
-            : "語音辨識出錯，請再試一次或直接打字。";
-      setError(msg);
+      setError(e.error === "not-allowed" || e.error === "service-not-allowed" ? "notAllowed" : e.error === "no-speech" ? "noSpeech" : "error");
       setListening(false);
     };
 
@@ -132,7 +130,7 @@ export function useSpeechInput(onText: (text: string, isFinal: boolean) => void)
       rec.start();
     } catch {
       setListening(false);
-      setError("未能啟動語音辨識，請再試一次。");
+      setError("startFail");
     }
   }, []);
 

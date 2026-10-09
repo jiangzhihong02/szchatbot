@@ -6,7 +6,7 @@ import { LOCALES } from "./i18n/config";
 /**
  * 意圖的純定義與關鍵詞匹配 —— **客戶端安全**（無伺服器依賴）。
  * 鍵與 emoji 來自 `presets.ts`；三語標籤在 `i18n/messages.ts`。
- * 前端按鈕、共用 hook 與伺服器端分發器都從這裡取。
+ * 前端按鈕、共用 hook 與伺服器端的意圖分發都從這裡取。
  */
 
 export { PRESET_BUTTONS };
@@ -21,7 +21,7 @@ export const KEYWORDS: Record<IntentKey, string[]> = {
   day: ["一日遊", "一日游", "規劃行程", "规划行程", "路線", "路线", "行程", "route", "day trip", "itinerary"],
   family: ["親子遊", "亲子游", "親子", "亲子", "帶小孩", "带小孩", "小朋友", "family", "kids", "children"],
   weather: ["天氣點", "天气点", "天氣", "天气", "落雨", "weather", "rain"],
-  pricing: [
+  transportDeals: [
     "點搭車", "点搭车", "幾多錢", "几多钱", "點去", "点去", "車費", "车费", "交通",
     "transport", "fare", "how to get", "how much",
   ],

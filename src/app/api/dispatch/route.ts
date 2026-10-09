@@ -1,11 +1,14 @@
-import { buildCards, dispatch, PRESET_BUTTONS } from "@/lib/dispatcher";
-import type { DispatchOptions, IntentKey } from "@/lib/dispatcher";
+import { buildCards, dispatch } from "@/lib/dispatcher";
+import type { DispatchOptions } from "@/lib/dispatcher";
+import { PRESET_BUTTONS } from "@/lib/presets";
+import type { IntentKey } from "@/lib/presets";
 import type { Travellers } from "@/lib/types";
-import { resolveLocale } from "@/lib/i18n/config";
 
 /**
- * 意圖分發 API。分發器依賴 Next 執行時（`use cache`）與伺服器端資料，
- * 故前端不直接呼叫它，而是打這裡。
+ * 意圖分發 API。分發器依賴 Next 執行時（`use cache`）與伺服器端資料，故前端不直接呼叫它。
+ *
+ * ⚠️ **不收 locale**：分發器只回傳**結構化資料**，文案由前端按語言渲染，
+ *    這樣切換語言時既有的卡片才會即時跟著變。
  *
  * 請求：{ text? , intent? , travellers? , routeIndex? }
  * 回應：{ matched, intent?, cards?, needsInput? } —— matched:false 時前端改打 /api/chat。
@@ -24,7 +27,6 @@ export async function POST(req: Request): Promise<Response> {
     intent?: string;
     travellers?: Travellers;
     routeIndex?: number;
-    locale?: string;
   };
   try {
     body = await req.json();
@@ -33,22 +35,20 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const opts: DispatchOptions = { travellers: body.travellers, routeIndex: body.routeIndex };
-  // 規則引擎的文案（交通方案 / 優惠項 / 支付提示 / 天氣建議）隨語言。
-  const locale = resolveLocale(body.locale);
 
   try {
     // 按鈕：直接給定意圖
     if (typeof body.intent === "string" && INTENTS.has(body.intent)) {
       const intent = body.intent as IntentKey;
-      if (intent === "pricing" && !opts.travellers) {
+      if (intent === "transportDeals" && !opts.travellers) {
         return json({ matched: true, intent, needsInput: "travellers", cards: [] });
       }
-      return json({ matched: true, intent, cards: await buildCards(intent, opts, locale) });
+      return json({ matched: true, intent, cards: await buildCards(intent, opts) });
     }
 
     // 手打：走關鍵詞匹配
     if (typeof body.text === "string") {
-      return json(await dispatch(body.text, opts, locale));
+      return json(await dispatch(body.text, opts));
     }
 
     return json({ error: "need `text` or `intent`" }, 400);

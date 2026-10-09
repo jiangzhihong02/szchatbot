@@ -1,28 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useChat } from "./useChat";
 import { CardView } from "./cards";
-import { PresetBar, HeadcountPicker, MicButton } from "./parts";
+import { PresetBar } from "./PresetBar";
+import { TravellersPicker } from "./TravellersPicker";
+import { Composer } from "./Composer";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useI18n } from "@/components/i18n/LocaleProvider";
 
 /** 手機版：對話優先（票 02 的 verdict）。 */
 export function MobileChat() {
   const { m } = useI18n();
-  const { messages, busy, awaitingHeadcount, send, sendIntent, chooseHeadcount, cycleRoute, note } = useChat();
-  const [draft, setDraft] = useState("");
+  const { messages, busy, awaitingTravellers, send, sendIntent, chooseTravellers, cycleRoute, postNotice } = useChat();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
-
-  const submit = () => {
-    if (!draft.trim()) return;
-    send(draft);
-    setDraft("");
-  };
 
   return (
     <div className="mx-auto flex h-[100dvh] max-w-md flex-col bg-slate-50">
@@ -55,7 +50,9 @@ export function MobileChat() {
                 {msg.cards?.map((c, i) => (
                   <CardView key={i} card={c} onCycleRoute={() => cycleRoute(msg)} />
                 ))}
-                {awaitingHeadcount === msg.id && <HeadcountPicker onPick={(t) => chooseHeadcount(msg.id, t)} />}
+                {awaitingTravellers === msg.id && (
+                  <TravellersPicker onPick={(t) => chooseTravellers(msg.id, t)} />
+                )}
               </div>
             )}
           </div>
@@ -67,33 +64,7 @@ export function MobileChat() {
         <div className="pt-2">
           <PresetBar onPick={sendIntent} disabled={busy} />
         </div>
-        <div className="flex items-center gap-2 px-3 py-2">
-          <MicButton
-            disabled={busy}
-            onInterim={setDraft}
-            onFinal={(t) => {
-              send(t);
-              setDraft("");
-            }}
-            onNotice={note}
-          />
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submit()}
-            placeholder={m.composer.placeholder}
-            className="h-10 flex-1 rounded-full bg-slate-100 px-4 text-sm outline-none"
-          />
-          <button
-            type="button"
-            onClick={submit}
-            disabled={busy || !draft.trim()}
-            aria-label={m.composer.send}
-            className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-teal-600 text-white transition disabled:opacity-40"
-          >
-            ↑
-          </button>
-        </div>
+        <Composer onSend={send} onNotice={postNotice} disabled={busy} />
       </div>
     </div>
   );

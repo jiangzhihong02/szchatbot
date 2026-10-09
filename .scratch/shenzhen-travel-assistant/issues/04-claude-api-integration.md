@@ -40,4 +40,4 @@ Label: wayfinder:task
 
 **驗證**：`tsc` 乾淨；`next build` 綠（`/api/chat` 為動態路由）；無 key 時 curl 得 HTTP 200 + 降級 SSE。**真實 LLM 路徑待使用者填入 `ANTHROPIC_API_KEY` 後驗證。**
 
-**注意**：`cacheComponents: true` 不允許 `runtime` / `maxDuration` 路由段配置，故未設。
+**注意（更正）**：初版此處寫「`cacheComponents: true` 不允許 `runtime` / `maxDuration` 路由段配置，故未設」——**不準確**。v16 在 Cache Components 下移除的只有 `dynamic` / `dynamicParams` / `revalidate` / `fetchCache`；`runtime` 確因不相容被拒，但 **`maxDuration` 可用**，已在後續提交（`6b5c1c4`）設為 60 秒，以免 Vercel 平台預設（可能 10s）截斷流式回答。

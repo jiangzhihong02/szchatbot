@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { systemPromptFor } from "@/lib/system-prompt";
 import { resolveLocale } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 
 /**
  * 自由問答 API（票 04）。
@@ -67,10 +68,12 @@ export async function POST(req: Request): Promise<Response> {
   }
   turns = turns.slice(firstUser).slice(-20); // 只保留最近 20 輪，控制上下文長度
 
+  // 文案（降級 / 拒絕 / 出錯）與 system prompt 都隨界面語言。
+  const locale = resolveLocale(localeRaw);
+  const m = getMessages(locale);
+
   if (!API_KEY) {
-    return textStream(
-      "（未配置 ANTHROPIC_API_KEY，暫時未能回答自由問題。你可以改用下方的按鈕，或請管理員配置密鑰。）"
-    );
+    return textStream(m.errors.llmNoKey);
   }
 
   const client = new Anthropic({ apiKey: API_KEY, baseURL: BASE_URL });
@@ -79,7 +82,7 @@ export async function POST(req: Request): Promise<Response> {
     max_tokens: 4096, // 聊天回答刻意簡短；串流下無 HTTP timeout 之虞
     thinking: { type: "adaptive" },
     output_config: { effort: "low" }, // 聊天屬延遲敏感，低 effort 足夠
-    system: [{ type: "text", text: systemPromptFor(resolveLocale(localeRaw)), cache_control: { type: "ephemeral" } }],
+    system: [{ type: "text", text: systemPromptFor(locale), cache_control: { type: "ephemeral" } }],
     messages: turns.map((t) => ({ role: t.role, content: t.content })),
   });
 
@@ -94,17 +97,11 @@ export async function POST(req: Request): Promise<Response> {
         }
         const final = await stream.finalMessage();
         if (final.stop_reason === "refusal") {
-          controller.enqueue(
-            encoder.encode(sse({ text: "抱歉，這個問題我未能回答，你可以試試深圳旅遊相關的提問。" }))
-          );
+          controller.enqueue(encoder.encode(sse({ text: m.errors.llmRefusal })));
         }
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-      } catch (err) {
-        const msg =
-          err instanceof Anthropic.APIError
-            ? `服務暫時不可用（${err.status}），請稍後再試。`
-            : "服務暫時不可用，請稍後再試。";
-        controller.enqueue(encoder.encode(sse({ error: msg })));
+      } catch {
+        controller.enqueue(encoder.encode(sse({ error: m.errors.llmFailed })));
       } finally {
         controller.close();
       }

@@ -8,14 +8,9 @@ export const PRESET_BUTTONS = [
   { key: "day", emoji: "🗺️" },
   { key: "family", emoji: "👨‍👩‍👧" },
   { key: "weather", emoji: "🌤️" },
-  { key: "pricing", emoji: "💰" },
+  { key: "transportDeals", emoji: "💰" },
   { key: "deals", emoji: "🎫" },
 ] as const;
 
 export type IntentKey = (typeof PRESET_BUTTONS)[number]["key"];
 export type PresetButton = (typeof PRESET_BUTTONS)[number];
-
-/** 極簡模板替換：fmt("約 {n} 小時", { n: 6 }) */
-export function fmt(template: string, vars: Record<string, string | number>): string {
-  return template.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? `{${k}}`));
-}

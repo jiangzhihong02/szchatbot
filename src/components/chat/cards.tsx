@@ -1,13 +1,16 @@
 "use client";
 
 import type { Card, RouteCardData, WeatherData, PricingData, FoodData, DealData } from "@/lib/types";
-import { fmt } from "@/lib/presets";
+import { fmt } from "@/lib/i18n/format";
 import { useI18n } from "@/components/i18n/LocaleProvider";
 import { localizeRoute, localizeFood, localizeDeal } from "@/lib/i18n/content";
+import { weatherTerm, windTerm, adviceKeyFor } from "@/lib/i18n/weather-text";
 
 /**
  * 卡片渲染。契约见票 01；型別為可辨識聯合，故各分支的 data 自動收窄。
- * 標籤隨語言（票 11）；卡片**內容**仍為資料層原文（三語化在票 11 第二批）。
+ *
+ * ⚠️ **所有文案都在前端按當前語言渲染**（含天氣建議與優惠交通卡的方案/優惠項），
+ *    故切換語言時既有的卡片會即時跟著變。
  */
 
 function RouteCard({ data, onCycle }: { data: RouteCardData; onCycle?: () => void }) {
@@ -27,32 +30,35 @@ function RouteCard({ data, onCycle }: { data: RouteCardData; onCycle?: () => voi
         {m.cards.bestFor}：{route.bestFor}
       </p>
 
-      <ol className="mt-3 space-y-3">
-        {route.stops.map((s, i) => (
-          <li key={`${s.name}-${i}`} className="flex gap-3">
-            <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-teal-600 text-xs font-semibold text-white">
-              {i + 1}
-            </span>
-            <div>
-              <p className="text-sm font-medium text-slate-900">
-                {s.name} <span className="text-xs font-normal text-slate-400">· {s.area}</span>
-              </p>
-              <p className="text-xs text-slate-500">{s.desc}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+      {/* 站點與地圖：窄屏上下堆疊，寬屏並排（票 10） */}
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <ol className="space-y-3">
+          {route.stops.map((s, i) => (
+            <li key={`${s.name}-${i}`} className="flex gap-3">
+              <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-teal-600 text-xs font-semibold text-white">
+                {i + 1}
+              </span>
+              <div>
+                <p className="text-sm font-medium text-slate-900">
+                  {s.name} <span className="text-xs font-normal text-slate-400">· {s.area}</span>
+                </p>
+                <p className="text-xs text-slate-500">{s.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
 
-      {/* 路線地圖（票 10）：伺服器代理取圖，key 不出現在瀏覽器 */}
-      <img
-        src={`/api/route-map?routeId=${encodeURIComponent(route.id)}`}
-        alt={route.title}
-        loading="lazy"
-        className="mt-3 w-full rounded-xl ring-1 ring-slate-900/5"
-        onError={(e) => {
-          e.currentTarget.style.display = "none";
-        }}
-      />
+        {/* 路線地圖：伺服器代理取圖，key 不出現在瀏覽器 */}
+        <img
+          src={`/api/route-map?routeId=${encodeURIComponent(route.id)}`}
+          alt={route.title}
+          loading="lazy"
+          className="w-full self-start rounded-xl ring-1 ring-slate-900/5"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      </div>
 
       {route.tips && <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">💡 {route.tips}</p>}
 
@@ -69,42 +75,40 @@ function RouteCard({ data, onCycle }: { data: RouteCardData; onCycle?: () => voi
 }
 
 function WeatherCard({ data }: { data: WeatherData }) {
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
+  const advice = m.engine.weatherAdvice[adviceKeyFor(data.days)];
   return (
     <div className="rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-500 p-4 text-white shadow-sm">
       <p className="text-xs opacity-80">
-        {data.city} · {fmt(m.cards.weatherTitle, { n: data.days.length })}
+        {m.city} · {fmt(m.cards.weatherTitle, { n: data.days.length })}
         {data.source === "mock" && ` (${m.cards.weatherSample})`}
       </p>
       <div className="mt-2 grid grid-cols-3 gap-2 text-center">
         {data.days.map((d) => (
-          <div key={d.date} className="rounded-xl bg-white/15 py-2">
-            <p className="text-xs opacity-90">{d.date}</p>
-            <p className="mt-0.5 text-sm font-medium">{d.text}</p>
+          <div key={d.dayOffset} className="rounded-xl bg-white/15 py-2">
+            <p className="text-xs opacity-90">{m.dayLabels[d.dayOffset] ?? `Day ${d.dayOffset + 1}`}</p>
+            <p className="mt-0.5 text-sm font-medium">{weatherTerm(d.text, locale)}</p>
             {d.textNight && d.textNight !== d.text && (
               <p className="text-[10px] opacity-75">
-                {m.cards.night}：{d.textNight}
+                {m.cards.night}：{weatherTerm(d.textNight, locale)}
               </p>
             )}
             <p className="mt-1 text-sm font-semibold">
               {d.tempMax}° <span className="font-normal opacity-70">{d.tempMin}°</span>
             </p>
-            {d.wind && (
-              <p className="text-[10px] opacity-75">
-                {d.wind} {m.cards.wind}
-              </p>
-            )}
+            {d.wind && <p className="text-[10px] opacity-75">{fmt(m.cards.windLabel, { w: windTerm(d.wind, locale) })}</p>}
           </div>
         ))}
       </div>
-      <p className="mt-3 text-xs opacity-95">💡 {data.advice}</p>
+      <p className="mt-3 text-xs opacity-95">💡 {advice}</p>
     </div>
   );
 }
 
-function PricingCard({ data }: { data: PricingData }) {
+function TransportDealsCard({ data }: { data: PricingData }) {
   const { m } = useI18n();
-  const { travellers: t } = data;
+  const t = data.travellers;
+  const transport = m.engine.transport[data.transport];
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
       <p className="text-xs text-slate-500">
@@ -113,31 +117,36 @@ function PricingCard({ data }: { data: PricingData }) {
       </p>
 
       <div className="mt-2 rounded-xl bg-slate-50 p-3">
-        <p className="text-sm font-semibold text-slate-900">🚕 {data.transport.mode}</p>
-        <p className="mt-0.5 text-xs text-slate-500">{data.transport.reason}</p>
-        <p className="mt-1 text-xs font-medium text-teal-700">{data.transport.roughCost}</p>
+        <p className="text-sm font-semibold text-slate-900">🚕 {transport.mode}</p>
+        <p className="mt-0.5 text-xs text-slate-500">{transport.reason}</p>
+        <p className="mt-1 text-xs font-medium text-teal-700">{transport.cost}</p>
       </div>
 
       <div className="mt-3 space-y-2">
-        {data.discounts.map((d) => (
-          <div key={d.name} className="flex gap-2">
-            <span className="text-sm">🎟️</span>
-            <div>
-              <p className="text-sm font-medium text-slate-900">{d.name}</p>
-              <p className="text-xs text-slate-500">{d.detail}</p>
+        {data.discounts.map((key) => {
+          const d = m.engine.discount[key];
+          return (
+            <div key={key} className="flex gap-2">
+              <span className="text-sm">🎟️</span>
+              <div>
+                <p className="text-sm font-medium text-slate-900">{d.name}</p>
+                <p className="text-xs text-slate-500">{d.detail}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="mt-3 rounded-xl bg-teal-50 p-3">
         <p className="text-xs font-medium text-teal-800">💳 {m.cards.pay}</p>
         <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-teal-900/80">
-          {data.paymentTips.map((p) => (
+          {m.engine.paymentTips.map((p) => (
             <li key={p}>{p}</li>
           ))}
         </ul>
       </div>
+
+      <p className="mt-2 text-[10px] text-slate-400">{m.engine.estimateNote}</p>
     </div>
   );
 }
@@ -182,6 +191,7 @@ function DealListCard({ data }: { data: DealData[] }) {
               {d.merchant} · {d.area}
             </p>
             <p className="mt-1 text-xs text-slate-600">{d.summary}</p>
+            {d.validUntil && <p className="mt-1 text-[10px] text-slate-400">{d.validUntil}</p>}
             <p className="mt-1 text-[10px] text-slate-400">
               {m.cards.source}：{d.sourceName}
             </p>
@@ -198,8 +208,8 @@ export function CardView({ card, onCycleRoute }: { card: Card; onCycleRoute?: ()
       return <RouteCard data={card.data} onCycle={onCycleRoute} />;
     case "weather":
       return <WeatherCard data={card.data} />;
-    case "pricing":
-      return <PricingCard data={card.data} />;
+    case "transportDeals":
+      return <TransportDealsCard data={card.data} />;
     case "foodList":
       return <FoodListCard data={card.data} />;
     case "dealList":

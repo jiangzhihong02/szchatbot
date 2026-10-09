@@ -2,9 +2,7 @@
  * 術語表：香港繁體 → 內地簡體（票 11）。
  *
  * 只收**用詞**差異；純字形差異（優惠→优惠、地鐵→地铁）屬字形轉換，不在此列。
- * 用途：
- *   1. 內容數據做簡繁派生時的覆寫表；
- *   2. 送給 LLM 起草譯文時的提示詞一部分（保證用詞一致）。
+ * 用途：內容數據做簡繁派生 / 校對時的用詞對照，以及翻譯 LLM 提示詞的一部分。
  */
 
 /** 香港用語 → 內地用語。 */
@@ -40,10 +38,3 @@ export const HK_TO_MAINLAND: Record<string, string> = {
   抵食: "划算",
   平靚正: "物美价廉",
 };
-
-/** 供 LLM 提示詞用的可讀清單。 */
-export function glossaryPrompt(): string {
-  return Object.entries(HK_TO_MAINLAND)
-    .map(([hk, cn]) => `${hk} → ${cn}`)
-    .join("\n");
-}

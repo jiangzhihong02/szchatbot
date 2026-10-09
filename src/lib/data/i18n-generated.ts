@@ -412,4 +412,44 @@ export const CONTENT_I18N: Record<string, { "zh-Hans": string; en: string }> = {
     "zh-Hans": "4 条主题线可随上随下、任意换乘。24 小时票约 ¥50、48 小时套票约 ¥80、1.4 米以下免费。",
     en: "Four themed routes with hop-on, hop-off transfers. About ¥50 for 24 hours, ¥80 for 48 hours; free under 1.4m.",
   },
+
+  // ── 優惠的來源與有效期（票 11：契約要求優惠清單卡含「來源」欄）──
+  "d-window-world.validUntil": { "zh-Hans": "常设（以官方为准）", en: "Permanent (check official prices)" },
+  "d-window-world.sourceName": {
+    "zh-Hans": "景区公开票价（深圳本地宝汇总）",
+    en: "Published attraction prices (via Shenzhen Bendibao)",
+  },
+  "d-happy-valley.validUntil": { "zh-Hans": "常设（以官方为准）", en: "Permanent (check official prices)" },
+  "d-happy-valley.sourceName": { "zh-Hans": "欢乐谷官网", en: "Happy Valley official site" },
+  "d-szoo.validUntil": { "zh-Hans": "常设", en: "Permanent" },
+  "d-szoo.sourceName": { "zh-Hans": "深圳野生动物园官网", en: "Shenzhen Safari Park official site" },
+  "d-splendid-china.validUntil": { "zh-Hans": "常设（以官方为准）", en: "Permanent (check official prices)" },
+  "d-splendid-china.sourceName": {
+    "zh-Hans": "景区公开票价（深圳本地宝汇总）",
+    en: "Published attraction prices (via Shenzhen Bendibao)",
+  },
+  "d-bay-glory-wheel.validUntil": { "zh-Hans": "常设（以官方为准）", en: "Permanent (check official prices)" },
+  "d-bay-glory-wheel.sourceName": { "zh-Hans": "欢乐港湾公开票价 / KKday", en: "One Bay published prices / KKday" },
+  "d-alipayhk-sz.validUntil": { "zh-Hans": "活动期短，以 App 为准", en: "Short campaign — check the app" },
+  "d-alipayhk-sz.sourceName": {
+    "zh-Hans": "AlipayHK / 罗湖跨境消费嘉年华公开报道",
+    en: "AlipayHK / Luohu cross-border shopping festival coverage",
+  },
+  "d-wechatpayhk-sz.validUntil": { "zh-Hans": "活动期短，以 App 为准", en: "Short campaign — check the app" },
+  "d-wechatpayhk-sz.sourceName": {
+    "zh-Hans": "WeChat Pay HK 官方公开说明",
+    en: "WeChat Pay HK official announcement",
+  },
+  "d-unionpay-gba.validUntil": { "zh-Hans": "以云闪付 App 为准", en: "Check the Cloud QuickPass app" },
+  "d-unionpay-gba.sourceName": {
+    "zh-Hans": "中国银联 / 云闪付公开活动",
+    en: "China UnionPay / Cloud QuickPass campaign",
+  },
+  "d-tax-refund.validUntil": { "zh-Hans": "长期政策（门槛以官方为准）", en: "Long-standing policy (thresholds per official notice)" },
+  "d-tax-refund.sourceName": {
+    "zh-Hans": "香港工业贸易署通函（转载深圳市财政局公告）",
+    en: "HK Trade and Industry Department circular (reprinting the Shenzhen Finance Bureau notice)",
+  },
+  "d-tourist-bus.validUntil": { "zh-Hans": "常设", en: "Permanent" },
+  "d-tourist-bus.sourceName": { "zh-Hans": "深圳巴士集团公开票价", en: "Shenzhen Bus Group published fares" },
 };
