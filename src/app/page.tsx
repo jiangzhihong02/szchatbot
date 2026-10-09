@@ -5,7 +5,7 @@ import { resolveVariant } from "@/lib/device";
 
 /**
  * 深圳旅遊助手首頁。
- * 按使用者代理分發介面結構（票 02 的 verdict；見 docs/adr/0002-device-based-layout-routing.md）：
+ * 按使用者代理做**裝置分發**（票 02 的 verdict；見 docs/adr/0002-device-based-layout-routing.md）：
  *   手機 → 對話優先；桌面 → 分欄指令台。判斷本身在 `lib/device`（純、可表驅動測試）。
  * 讀 headers() 需動態渲染，故 instant = false（Next 16 Cache Components）。
  */

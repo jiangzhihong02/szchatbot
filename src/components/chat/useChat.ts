@@ -13,8 +13,7 @@ import { useI18n } from "@/components/i18n/LocaleProvider";
  * 順序敏感與可測的規則（餵給 LLM 的 transcript、換一條的索引）在 `lib/conversation`（純）。
  *
  * 流程：先打 /api/dispatch 走確定性路徑；未命中才打 /api/chat 串流問 LLM。
- * 分發不回傳文案（只有結構化卡片），故切語言時已顯示的卡片會即時跟著變；
- * 只有 LLM 的**自由問答**需要把 locale 送給伺服器（決定回答語言）。
+ * **意圖分發**不回傳文案（只有結構化卡片），故切語言時已顯示的卡片會即時跟著變； * 只有 LLM 的**自由問答**需要把 locale 送給伺服器（決定回答語言）。
  */
 
 export type { ChatMsg };
@@ -86,7 +85,7 @@ export function useChat() {
     setMessages((prev) => prev.map((msg) => (msg.id === id ? { ...msg, ...next } : msg)));
 
   /**
-   * 分發結果 → 訊息狀態。按鈕與手打**共用這一處轉換** ——
+   * **意圖分發**結果 → 訊息狀態。按鈕與手打**共用這一處轉換** ——
    * 「缺出行組合就彈快捷選項」只在這裡表述一次。
    */
   function applyResult(id: string, r: DispatchResult) {

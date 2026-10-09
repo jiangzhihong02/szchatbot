@@ -192,12 +192,12 @@ async function main() {
 
   const need = await dispatch("交通");
   check(
-    "dispatch 缺人數 → needsInput:'travellers'",
+    "dispatch 缺出行組合 → needsInput:'travellers'",
     need.matched === true && need.needsInput === "travellers" && need.cards.length === 0
   );
 
   const hit = await dispatch("交通", { travellers: { adults: 2, children: 0 } });
-  check("dispatch 帶人數 → 出卡", hit.matched === true && hit.cards.length === 1);
+  check("dispatch 帶出行組合 → 出卡", hit.matched === true && hit.cards.length === 1);
 
   const btn = await dispatch("找美食");
   check("dispatch 按鈕字串命中 → foodList", btn.matched === true && btn.cards[0]?.type === "foodList");

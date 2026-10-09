@@ -9,7 +9,7 @@ import type { PricingData, Travellers, TransportKey, DiscountKey } from "./types
  *    這樣切換語言時既有的卡也會即時跟著變。
  */
 
-/** 把出行人數夹到 0–50 的整数。 */
+/** 把出行組合夹到 0–50 的整数。 */
 function clampCount(n: number): number {
   return Math.max(0, Math.min(50, Math.floor(n || 0)));
 }
