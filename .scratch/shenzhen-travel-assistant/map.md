@@ -50,6 +50,7 @@ Status: open
 <!-- 超出终点的工作；关闭，永不毕业。若终点被重画才作为新 effort 回来。 -->
 
 - **真实爬取小红书**：违反平台用户协议、法律灰区、技术上不稳定；demo 用示例数据 + 可插拔接口替代。
+- **MCP 实时更新 / 全自动优惠聚合**：经 grilling 收敛并经独立研究核实——`research/mcp-deals-check.md` 扫描官方 MCP Registry 18,640 个服务器名，**无一**提供深圳／香港消费优惠；现存优惠类 MCP 全为欧美市场，美团／携程／飞猪／Klook 的官方 MCP 皆无券数据。MCP 是**接口而非数据源**，且普通 Next.js 网页应用并非 MCP host。优惠数据先走人工精选种子；`DataSource` 接口即未来接自动源的插座（Vercel Cron → 鉴权路由 → 归一化 → KV → ISR），无需 MCP。
 - **真实支付 / 下单闭环**：优惠只做展示与规则计算，不接真实交易。
 - **用户账号与登录**：demo 不做账号系统，偏好不持久化。
-- **FastGPT / Dify 低代码方案**：已决策手搓 Next.js（见 Decisions so far 首条，待回填）。
+- **FastGPT / Dify 低代码方案**：已决策手搓 Next.js（见上方「已定基线决策」）。
