@@ -1,7 +1,7 @@
 # 任务：接入 Claude API + system prompt 到 /api/chat
 
 Type: task
-Status: open
+Status: claimed
 Label: wayfinder:task
 
 ## Question
@@ -20,4 +20,24 @@ Label: wayfinder:task
 
 ## Blocked by
 
-- 03（内容库，提供 system prompt 的知识）
+- 03（内容库，提供 system prompt 的知识）—— 已 resolved。
+
+## Answer
+
+**產出並驗證（降級路徑）。**
+
+- **`src/app/api/chat/route.ts`** —— POST，串流 SSE（`data: {"text":…}` … `data: [DONE]`）：
+  - `@anthropic-ai/sdk` 的 `client.messages.stream()`，逐 `text_delta` 轉發。
+  - 模型 `claude-opus-4-8`（使用者點名）；可用 `APP_ANTHROPIC_MODEL` 換。
+  - `thinking: {type:"adaptive"}` + `output_config:{effort:"low"}`（聊天屬延遲敏感）。
+  - system prompt 帶 `cache_control: {type:"ephemeral"}`。
+  - 首條非 user 丟棄；只留最近 20 輪；空 body → 400。
+  - 無 key → 降級文案；API 錯誤 → `{error}`；`stop_reason==="refusal"` → 友善文案。
+- **`src/lib/system-prompt.ts`** —— 約 1000 字繁體知識（取自研究庫），含新皇崗口岸 2026-10-12 時效事實。
+- **`.env.example`** —— `ANTHROPIC_API_KEY` + `APP_ANTHROPIC_MODEL` + `APP_ANTHROPIC_BASE_URL`；`.gitignore` 加 `!.env.example`。
+
+**⚠️ 環境隔離（重要）**：本機 shell 設有 Claude Code 的第三方代理環境（`ANTHROPIC_BASE_URL=agentrouter.org`、`ANTHROPIC_AUTH_TOKEN`、`ANTHROPIC_MODEL=deepseek-v4-flash`）。故 route 內**顯式**傳 `apiKey` 與 `baseURL` 給 SDK，並用 `APP_` 前綴的模型變數——否則 app 會**靜默走代理、用 DeepSeek 而非 Opus**。
+
+**驗證**：`tsc` 乾淨；`next build` 綠（`/api/chat` 為動態路由）；無 key 時 curl 得 HTTP 200 + 降級 SSE。**真實 LLM 路徑待使用者填入 `ANTHROPIC_API_KEY` 後驗證。**
+
+**注意**：`cacheComponents: true` 不允許 `runtime` / `maxDuration` 路由段配置，故未設。

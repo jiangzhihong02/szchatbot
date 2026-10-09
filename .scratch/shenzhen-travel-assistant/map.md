@@ -35,6 +35,7 @@ Status: open
 - [决策：预设按钮清单与每个按钮的固定输出格式](issues/01-preset-buttons-and-output-formats.md)：定下 6 按钮 → 关键词 → 卡片契约；一键一卡、路线可「換一條」、美食/优惠为清单卡、人数弹快捷选项、手打命中走同一确定性路径。**这是前端与规则引擎的共同契约。**
 - [原型：聊天界面与卡片视觉](issues/02-chat-ui-and-card-visuals.md)：**按 UA 自动分发**——手機用 A 對話優先、桌面用 C 分欄指令台；B 卡片牆落选。已实现并验证（`src/app/page.tsx`），结合响应式微调。原型在 `src/components/prototype/`。
 - [任務：規則引擎分發器 + 內容數據落地](issues/08-rule-engine-dispatcher.md)：分發器（關鍵詞 → 卡片）+ 數據落地（7 路線 / 12 美食 / 10 優惠）+ 型別擴充（foodList/dealList + 3 日天氣）。19 個匹配用例全過，build 綠。**順帶完成票 06 的天氣代碼部分。**
+- [任務：接入 Claude API + system prompt 到 /api/chat](issues/04-claude-api-integration.md)：串流 SSE 的 `/api/chat`（Opus 4.8，adaptive thinking + low effort）+ 約 1000 字繁體 system prompt。**顯式隔離 shell 的 Claude Code 代理環境**，否則會靜默用 DeepSeek。降級路徑已驗證；真實路徑待填 key。
 
 ## Not yet specified
 
