@@ -37,15 +37,16 @@ async function callDispatch(body: unknown): Promise<DispatchResponse> {
   return (await res.json()) as DispatchResponse;
 }
 
-/** 讀 /api/chat 的 SSE，逐段回呼。 */
+/** 讀 /api/chat 的 SSE，逐段回呼。locale 決定 LLM 用哪種語言回答。 */
 async function streamChat(
   messages: { role: string; content: string }[],
+  locale: string,
   onDelta: (s: string) => void
 ): Promise<void> {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, locale }),
   });
   if (!res.body) {
     onDelta("（暫時連接不上服務）");
@@ -77,7 +78,7 @@ async function streamChat(
 }
 
 export function useChat() {
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
   const [messages, setMessages] = useState<ChatMsg[]>([
     { id: uid(), role: "assistant", text: m.greeting },
   ]);
@@ -94,7 +95,7 @@ export function useChat() {
   async function showIntent(intent: IntentKey, opts: { travellers?: Travellers; routeIndex?: number } = {}) {
     const id = uid();
     append({ id, role: "assistant", cards: [], fromIntent: intent, routeIndex: opts.routeIndex ?? 0 });
-    const r = await callDispatch({ intent, ...opts });
+    const r = await callDispatch({ intent, ...opts, locale });
     if (r.matched && r.needsInput === "travellers") {
       replace(id, { cards: undefined, text: m.headcount.prompt });
       setAwaitingHeadcount(id);
@@ -120,7 +121,7 @@ export function useChat() {
     setAwaitingHeadcount(null);
     setBusy(true);
     try {
-      const r = await callDispatch({ intent: "pricing", travellers });
+      const r = await callDispatch({ intent: "pricing", travellers, locale });
       if (r.matched) replace(msgId, { text: undefined, cards: r.cards });
     } catch {
       replace(msgId, { text: m.errors.calc });
@@ -134,7 +135,7 @@ export function useChat() {
     const next = (msg.routeIndex ?? 0) + 1;
     setBusy(true);
     try {
-      const r = await callDispatch({ intent: msg.fromIntent, routeIndex: next });
+      const r = await callDispatch({ intent: msg.fromIntent, routeIndex: next, locale });
       if (r.matched) replace(msg.id, { cards: r.cards, routeIndex: next });
     } finally {
       setBusy(false);
@@ -153,7 +154,7 @@ export function useChat() {
     setBusy(true);
     append({ id: uid(), role: "user", text });
     try {
-      const r = await callDispatch({ text });
+      const r = await callDispatch({ text, locale });
       if (r.matched) {
         if (r.needsInput === "travellers") {
           const id = uid();
@@ -168,7 +169,7 @@ export function useChat() {
       // 未命中 → LLM 串流
       const id = uid();
       append({ id, role: "assistant", text: "", streaming: true });
-      await streamChat([...prior, { role: "user", content: text }], (delta) =>
+      await streamChat([...prior, { role: "user", content: text }], locale, (delta) =>
         setMessages((p) => p.map((m) => (m.id === id ? { ...m, text: (m.text ?? "") + delta } : m)))
       );
       replace(id, { streaming: false });

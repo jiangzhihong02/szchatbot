@@ -52,6 +52,14 @@ export interface Messages {
     source: string;
   };
   errors: { generic: string; data: string; calc: string };
+  /** 規則引擎產出的文案（票 11 第三批）：交通方案、優惠項、支付提示、天氣建議。 */
+  engine: {
+    transport: Record<"metro" | "carChild" | "car" | "charter", { mode: string; reason: string; cost: string }>;
+    discount: Record<"child" | "family" | "group" | "online", { name: string; detail: string }>;
+    paymentTips: string[];
+    weatherAdvice: { rain: string; hot: string; cold: string; ok: string };
+    estimateNote: string;
+  };
   localeLabel: string;
 }
 
@@ -116,6 +124,49 @@ export const messages: Record<Locale, Messages> = {
       data: "抱歉，暫時攞唔到資料，請再試一次。",
       calc: "抱歉，暫時計唔到，請再試一次。",
     },
+    engine: {
+      transport: {
+        metro: {
+          mode: "地鐵 + 步行",
+          reason: "人數少、無小孩，地鐵最靈活省錢，深圳地鐵覆蓋大部分景點。",
+          cost: "每程約 ¥2–9 / 人",
+        },
+        carChild: {
+          mode: "網約車 / 的士（帶小孩）",
+          reason: "帶小孩出行，網約車門到門更省心，可要求兒童座椅。",
+          cost: "每程約 ¥20–60 / 車",
+        },
+        car: {
+          mode: "網約車 / 的士",
+          reason: "3–5 人拼網約車，人均成本接近地鐵但更舒適。",
+          cost: "每程約 ¥20–60 / 車",
+        },
+        charter: {
+          mode: "包車 / 商務車",
+          reason: "超過 5 人，包車一次坐齊，適合家庭或團體，省去等車。",
+          cost: "半天約 ¥300–500 / 車",
+        },
+      },
+      discount: {
+        child: { name: "兒童優惠", detail: "身高 1.2m 以下兒童地鐵免費；多數景點 1.2–1.5m 享半價兒童票。" },
+        family: { name: "親子套票", detail: "大部分樂園 / 景點有「1大1小」或「2大1小」家庭套票，比單買約省 15%。" },
+        group: { name: "團體票", detail: "4 人或以上多數景點可買團體票，約 9 折；提前網上購票再減。" },
+        online: { name: "線上購票優惠", detail: "提前在官方小程序 / 購票平台購票，普遍比現場便宜，且免排隊。" },
+      },
+      paymentTips: [
+        "支付寶（AlipayHK 可直接掃深圳商戶，自動換算港幣）。",
+        "微信支付（香港錢包 WeChat Pay HK 已支持內地跨境消費）。",
+        "雲閃付 / 銀聯卡：大型商場、連鎖餐廳普遍支持。",
+        "建議備少量現金傍身，部分小店僅收內地收款碼。",
+      ],
+      weatherAdvice: {
+        rain: "未來一兩日有雨，記得帶傘；室內景點 / 商場更合適。",
+        hot: "天氣炎熱，注意防曬補水，建議安排室內或傍晚行程。",
+        cold: "偏涼，記得添衣。",
+        ok: "天氣舒適，適合戶外行程。",
+      },
+      estimateNote: "以上為示例規則與大致費用，實際以商戶 / 景點當日公告為準。",
+    },
     localeLabel: "語言",
   },
 
@@ -178,6 +229,49 @@ export const messages: Record<Locale, Messages> = {
       generic: "抱歉，出了点问题，请再试一次。",
       data: "抱歉，暂时拿不到数据，请再试一次。",
       calc: "抱歉，暂时算不出来，请再试一次。",
+    },
+    engine: {
+      transport: {
+        metro: {
+          mode: "地铁 + 步行",
+          reason: "人少、没小孩，地铁最灵活省钱，深圳地铁覆盖大部分景点。",
+          cost: "每程约 ¥2–9 / 人",
+        },
+        carChild: {
+          mode: "网约车 / 出租车（带小孩）",
+          reason: "带小孩出行，网约车点对点更省心，可以要求儿童座椅。",
+          cost: "每程约 ¥20–60 / 车",
+        },
+        car: {
+          mode: "网约车 / 出租车",
+          reason: "3–5 人拼网约车，人均成本接近地铁但更舒服。",
+          cost: "每程约 ¥20–60 / 车",
+        },
+        charter: {
+          mode: "包车 / 商务车",
+          reason: "超过 5 人，包车一趟坐齐，适合家庭或团体，省去等车。",
+          cost: "半天约 ¥300–500 / 车",
+        },
+      },
+      discount: {
+        child: { name: "儿童优惠", detail: "身高 1.2m 以下儿童地铁免费；多数景点 1.2–1.5m 享半价儿童票。" },
+        family: { name: "亲子套票", detail: "大部分乐园 / 景点有「1大1小」或「2大1小」家庭套票，比单买约省 15%。" },
+        group: { name: "团体票", detail: "4 人及以上多数景点可买团体票，约 9 折；提前网上购票还能再省。" },
+        online: { name: "线上购票优惠", detail: "提前在官方小程序 / 购票平台买票，通常比现场便宜，还能免排队。" },
+      },
+      paymentTips: [
+        "支付宝（AlipayHK 可直接扫深圳商户，自动换算港币）。",
+        "微信支付（香港钱包 WeChat Pay HK 已支持内地跨境消费）。",
+        "云闪付 / 银联卡：大型商场、连锁餐厅普遍支持。",
+        "建议备少量现金，部分小店只收内地收款码。",
+      ],
+      weatherAdvice: {
+        rain: "未来一两天有雨，记得带伞；室内景点 / 商场更合适。",
+        hot: "天气炎热，注意防晒补水，建议安排室内或傍晚行程。",
+        cold: "天凉，记得添衣。",
+        ok: "天气舒适，适合户外行程。",
+      },
+      estimateNote: "以上为示例规则与大致费用，实际以商户 / 景点当日公告为准。",
     },
     localeLabel: "语言",
   },
@@ -242,6 +336,49 @@ export const messages: Record<Locale, Messages> = {
       generic: "Sorry, something went wrong — please try again.",
       data: "Sorry, couldn't fetch that just now — please try again.",
       calc: "Sorry, couldn't calculate that just now — please try again.",
+    },
+    engine: {
+      transport: {
+        metro: {
+          mode: "Metro + walking",
+          reason: "Few people and no kids — the metro is the cheapest and most flexible option, and it reaches most sights.",
+          cost: "About ¥2–9 per person per ride",
+        },
+        carChild: {
+          mode: "Ride-hailing / taxi (with kids)",
+          reason: "Travelling with children, door-to-door is easier — you can ask for a child seat.",
+          cost: "About ¥20–60 per car per ride",
+        },
+        car: {
+          mode: "Ride-hailing / taxi",
+          reason: "For 3–5 people a car costs about the same per head as the metro but is more comfortable.",
+          cost: "About ¥20–60 per car per ride",
+        },
+        charter: {
+          mode: "Chartered car / MPV",
+          reason: "More than 5 people — charter one vehicle and skip the waiting; good for families and groups.",
+          cost: "About ¥300–500 per car for half a day",
+        },
+      },
+      discount: {
+        child: { name: "Child discount", detail: "Metro is free for children under 1.2m; most attractions offer half-price child tickets from 1.2–1.5m." },
+        family: { name: "Family package", detail: "Most parks and attractions sell 1-adult-1-child or 2-adult-1-child packages, about 15% off buying separately." },
+        group: { name: "Group tickets", detail: "Most attractions offer group tickets (about 10% off) for 4 or more; buying online in advance saves more." },
+        online: { name: "Buy online in advance", detail: "Tickets bought ahead on the official mini-program or booking platforms are usually cheaper than at the gate, and skip the queue." },
+      },
+      paymentTips: [
+        "AlipayHK — scan Shenzhen merchants directly; RMB is converted to HKD automatically.",
+        "WeChat Pay HK — the Hong Kong wallet now works for cross-border spending on the mainland.",
+        "UnionPay / Cloud QuickPass — widely accepted in large malls and chain restaurants.",
+        "Carry a little cash: some small shops only take mainland payment QR codes.",
+      ],
+      weatherAdvice: {
+        rain: "Rain is likely over the next day or two — bring an umbrella, and indoor sights or malls are a better bet.",
+        hot: "It's hot — watch the sun, drink water, and plan indoor or evening activities.",
+        cold: "It's on the chilly side — bring an extra layer.",
+        ok: "Comfortable weather — good for being outdoors.",
+      },
+      estimateNote: "These are sample rules and rough costs; the merchant or attraction's notice on the day is what counts.",
     },
     localeLabel: "Language",
   },

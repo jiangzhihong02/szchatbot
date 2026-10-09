@@ -1,6 +1,7 @@
 import { buildCards, dispatch, PRESET_BUTTONS } from "@/lib/dispatcher";
 import type { DispatchOptions, IntentKey } from "@/lib/dispatcher";
 import type { Travellers } from "@/lib/types";
+import { resolveLocale } from "@/lib/i18n/config";
 
 /**
  * 意圖分發 API。分發器依賴 Next 執行時（`use cache`）與伺服器端資料，
@@ -23,6 +24,7 @@ export async function POST(req: Request): Promise<Response> {
     intent?: string;
     travellers?: Travellers;
     routeIndex?: number;
+    locale?: string;
   };
   try {
     body = await req.json();
@@ -31,6 +33,8 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const opts: DispatchOptions = { travellers: body.travellers, routeIndex: body.routeIndex };
+  // 規則引擎的文案（交通方案 / 優惠項 / 支付提示 / 天氣建議）隨語言。
+  const locale = resolveLocale(body.locale);
 
   try {
     // 按鈕：直接給定意圖
@@ -39,12 +43,12 @@ export async function POST(req: Request): Promise<Response> {
       if (intent === "pricing" && !opts.travellers) {
         return json({ matched: true, intent, needsInput: "travellers", cards: [] });
       }
-      return json({ matched: true, intent, cards: await buildCards(intent, opts) });
+      return json({ matched: true, intent, cards: await buildCards(intent, opts, locale) });
     }
 
     // 手打：走關鍵詞匹配
     if (typeof body.text === "string") {
-      return json(await dispatch(body.text, opts));
+      return json(await dispatch(body.text, opts, locale));
     }
 
     return json({ error: "need `text` or `intent`" }, 400);

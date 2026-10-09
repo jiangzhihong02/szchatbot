@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { SYSTEM_PROMPT } from "@/lib/system-prompt";
+import { systemPromptFor } from "@/lib/system-prompt";
+import { resolveLocale } from "@/lib/i18n/config";
 
 /**
  * 自由問答 API（票 04）。
@@ -45,8 +46,10 @@ function textStream(text: string): Response {
 
 export async function POST(req: Request): Promise<Response> {
   let turns: Turn[];
+  let localeRaw: string | undefined;
   try {
-    const body = (await req.json()) as { messages?: Turn[] };
+    const body = (await req.json()) as { messages?: Turn[]; locale?: string };
+    localeRaw = body.locale;
     turns = (body.messages ?? []).filter(
       (m) =>
         (m.role === "user" || m.role === "assistant") &&
@@ -76,7 +79,7 @@ export async function POST(req: Request): Promise<Response> {
     max_tokens: 4096, // 聊天回答刻意簡短；串流下無 HTTP timeout 之虞
     thinking: { type: "adaptive" },
     output_config: { effort: "low" }, // 聊天屬延遲敏感，低 effort 足夠
-    system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+    system: [{ type: "text", text: systemPromptFor(resolveLocale(localeRaw)), cache_control: { type: "ephemeral" } }],
     messages: turns.map((t) => ({ role: t.role, content: t.content })),
   });
 

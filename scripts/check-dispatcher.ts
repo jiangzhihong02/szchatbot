@@ -106,8 +106,22 @@ async function main() {
   check("mapAmapForecast 標籤為 今日/明日/後日", mapped[0].date === "今日" && mapped[2].date === "後日");
   check("mapAmapForecast 帶日夜天氣與風", mapped.every((d) => !!d.text && !!d.textNight && !!d.wind));
   check("mapAmapForecast 非成功 → 空", mapAmapForecast({ status: "0" }).length === 0);
-  const mw = mockWeather();
+  const mw = mockWeather("zh-Hant");
   check("mock 3 天 + 建議", mw.days.length === 3 && mw.advice.length > 0);
+
+  // 規則引擎文案隨語言（票 11 第三批）
+  const prHant = await buildCards("pricing", { travellers: { adults: 2, children: 1 } }, "zh-Hant");
+  const prEn = await buildCards("pricing", { travellers: { adults: 2, children: 1 } }, "en");
+  const p1 = cardOf(prHant, "pricing");
+  const p2 = cardOf(prEn, "pricing");
+  if (p1?.type === "pricing" && p2?.type === "pricing") {
+    check("交通方案隨語言", p1.data.transport.mode !== p2.data.transport.mode);
+    check("優惠項隨語言", p1.data.discounts[0].name !== p2.data.discounts[0].name);
+    check("支付提示隨語言", p1.data.paymentTips[0] !== p2.data.paymentTips[0]);
+  } else {
+    check("pricing 卡（zh-Hant / en）", false);
+  }
+  check("天氣建議隨語言", mockWeather("zh-Hant").advice !== mockWeather("en").advice);
 
   // 優惠：清單 + 每項帶來源（契約要求「來源」欄）
   const deals = await buildCards("deals");

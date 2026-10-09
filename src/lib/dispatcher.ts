@@ -6,6 +6,8 @@ import { buildPricingPlan } from "./pricing";
 import { fetchAllDeals } from "./sources";
 import { matchIntent } from "./intents";
 import type { IntentKey } from "./intents";
+import { DEFAULT_LOCALE } from "./i18n/config";
+import type { Locale } from "./i18n/config";
 
 /**
  * 意圖分發（規則引擎）—— **伺服器端**。
@@ -31,8 +33,12 @@ export type DispatchResult =
   | { matched: false }
   | { matched: true; intent: IntentKey; cards: Card[]; needsInput?: "travellers" };
 
-/** 意图 → 卡片。按鈕直接呼叫此函式；手打輸入先 matchIntent 再呼叫。 */
-export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}): Promise<Card[]> {
+/** 意图 → 卡片。按鈕直接呼叫此函式；手打輸入先 matchIntent 再呼叫。locale 決定規則引擎的文案語言。 */
+export async function buildCards(
+  intent: IntentKey,
+  opts: DispatchOptions = {},
+  locale: Locale = DEFAULT_LOCALE
+): Promise<Card[]> {
   switch (intent) {
     case "food":
       return [{ type: "foodList", data: featuredFoods() }];
@@ -47,7 +53,7 @@ export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}):
     }
 
     case "weather":
-      return [{ type: "weather", data: await getWeather() }];
+      return [{ type: "weather", data: await getWeather(locale) }];
 
     case "pricing": {
       if (!opts.travellers) {
@@ -55,7 +61,7 @@ export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}):
           "buildCards('pricing') 需要 opts.travellers —— 應由 UI 的人數快捷選項提供（契約規則 3）。"
         );
       }
-      return [{ type: "pricing", data: buildPricingPlan(opts.travellers) }];
+      return [{ type: "pricing", data: buildPricingPlan(opts.travellers, locale) }];
     }
 
     case "deals":
@@ -64,7 +70,11 @@ export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}):
 }
 
 /** 分發入口：命中返回卡片；未命中交回呼叫方（→ /api/chat）。 */
-export async function dispatch(text: string, opts: DispatchOptions = {}): Promise<DispatchResult> {
+export async function dispatch(
+  text: string,
+  opts: DispatchOptions = {},
+  locale: Locale = DEFAULT_LOCALE
+): Promise<DispatchResult> {
   const intent = matchIntent(text);
   if (!intent) return { matched: false };
 
@@ -73,5 +83,5 @@ export async function dispatch(text: string, opts: DispatchOptions = {}): Promis
     return { matched: true, intent, cards: [], needsInput: "travellers" };
   }
 
-  return { matched: true, intent, cards: await buildCards(intent, opts) };
+  return { matched: true, intent, cards: await buildCards(intent, opts, locale) };
 }

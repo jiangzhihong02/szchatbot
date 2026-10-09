@@ -39,6 +39,7 @@ Status: open
 - [任務：聊天界面與卡片組件](issues/09-chat-ui-implementation.md)：正式聊天界面——按 UA 分發（手機對話優先 / 桌面分欄指令台）+ 5 種卡片 + `/api/dispatch`。純定義拆到客戶端安全的 `src/lib/intents.ts`。已驗證。
 - [任務：路線地圖（高德路徑規劃）](issues/10-amap-route-map.md)：站點座標一次地理編碼烘入資料；伺服器端逐段駕車路徑規劃 → **高德靜態地圖**，經 `/api/route-map` **代理取圖**（key 不外洩）。原定 JS 互動地圖因缺第二把 key 改為靜態圖。已驗證。
 - [任務：語音輸入（瀏覽器 Web Speech）](issues/05-voice-input.md)：`useSpeechInput` hook（`zh-HK` 優先、回落 `zh-CN`；留雲端 ASR 接縫）+ `MicButton`（臨時文字填框、定稿即送；出錯/權限/隱私以對話訊息提示）。tsc 與冒煙通過；瀏覽器行為待人工驗證。
+- [任務：三語國際化](issues/11-i18n.md)：English / 简体 / 繁體 三語全站（UI 文案 + 195 條內容數據 + 規則引擎文案 + LLM 回答語言）。測試期預設簡體（臨時開關）；繁體為正本；英文地名採「拼音 + 英文 +（簡體）」。**已超出原 MVP 終點，等於擴展了目的地。**
 
 ## Not yet specified
 
