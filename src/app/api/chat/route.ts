@@ -6,8 +6,11 @@ import { SYSTEM_PROMPT } from "@/lib/system-prompt";
  * 只服務「未命中按鈕／關鍵詞」的自由輸入；確定性路徑不經此處。
  * 串流回傳 Server-Sent Events：每行 `data: {"text": "..."}`，以 `data: [DONE]` 結束。
  *
- * 注：本倉的 cacheComponents 不允許 `runtime` / `maxDuration` 等路由段配置，故不設。
+ * 注：本倉的 cacheComponents 不允許 `runtime` 路由段配置，故不設。
+ *     但 `maxDuration` 可以（v16 移除的只有 dynamic / dynamicParams / revalidate / fetchCache）；
+ *     設 60s，以免 Vercel 平台預設（可能 10s）截斷流式回答。
  */
+export const maxDuration = 60;
 
 // 只讀 app 自己的設定，**顯式**傳給 SDK，避免繼承 shell 裡 Claude Code 的環境。
 // （本機 shell 設有 ANTHROPIC_BASE_URL / ANTHROPIC_MODEL / ANTHROPIC_AUTH_TOKEN，
