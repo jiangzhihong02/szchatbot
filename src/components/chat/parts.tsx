@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PRESET_BUTTONS } from "@/lib/intents";
-import type { IntentKey } from "@/lib/intents";
+import { PRESET_BUTTONS } from "@/lib/presets";
+import type { IntentKey } from "@/lib/presets";
 import type { Travellers } from "@/lib/types";
 import { useSpeechInput } from "@/lib/speech";
+import { useI18n } from "@/components/i18n/LocaleProvider";
 
-/** 六個預設按鈕（票 01 契約）。 */
+/** 六個預設按鈕（票 01 契約；文案隨語言）。 */
 export function PresetBar({
   onPick,
   disabled,
@@ -16,10 +17,8 @@ export function PresetBar({
   disabled?: boolean;
   layout?: "row" | "grid";
 }) {
-  const cls =
-    layout === "row"
-      ? "flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]"
-      : "grid grid-cols-2 gap-2";
+  const { m } = useI18n();
+  const cls = layout === "row" ? "flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]" : "grid grid-cols-2 gap-2";
   return (
     <div className={cls}>
       {PRESET_BUTTONS.map((b) => (
@@ -32,21 +31,16 @@ export function PresetBar({
           }`}
         >
           <span className="text-base">{b.emoji}</span>
-          <span className="font-medium">{b.label}</span>
+          <span className="font-medium">{m.presets[b.key].label}</span>
         </button>
       ))}
     </div>
   );
 }
 
-const QUICK: { label: string; t: Travellers }[] = [
-  { label: "1 大人", t: { adults: 1, children: 0 } },
-  { label: "2 大人", t: { adults: 2, children: 0 } },
-  { label: "2 大 1 小", t: { adults: 2, children: 1 } },
-];
-
 /** 人數快捷選項（契約規則 3）。 */
 export function HeadcountPicker({ onPick }: { onPick: (t: Travellers) => void }) {
+  const { m } = useI18n();
   const [custom, setCustom] = useState(false);
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(1);
@@ -54,10 +48,10 @@ export function HeadcountPicker({ onPick }: { onPick: (t: Travellers) => void })
   if (custom) {
     return (
       <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
-        <p className="text-sm font-medium text-slate-900">自訂人數</p>
+        <p className="text-sm font-medium text-slate-900">{m.headcount.customTitle}</p>
         <div className="mt-3 flex items-center gap-4">
           <label className="text-sm text-slate-600">
-            大人
+            {m.headcount.adults}
             <input
               type="number"
               min={0}
@@ -68,7 +62,7 @@ export function HeadcountPicker({ onPick }: { onPick: (t: Travellers) => void })
             />
           </label>
           <label className="text-sm text-slate-600">
-            小孩
+            {m.headcount.children}
             <input
               type="number"
               min={0}
@@ -80,25 +74,28 @@ export function HeadcountPicker({ onPick }: { onPick: (t: Travellers) => void })
           </label>
         </div>
         <div className="mt-3 flex gap-2">
-          <button
-            onClick={() => onPick({ adults, children })}
-            className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white"
-          >
-            計算
+          <button onClick={() => onPick({ adults, children })} className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white">
+            {m.headcount.calculate}
           </button>
           <button onClick={() => setCustom(false)} className="rounded-xl px-4 py-2 text-sm text-slate-500">
-            返回
+            {m.headcount.back}
           </button>
         </div>
       </div>
     );
   }
 
+  const quick: { label: string; t: Travellers }[] = [
+    { label: m.headcount.oneAdult, t: { adults: 1, children: 0 } },
+    { label: m.headcount.twoAdults, t: { adults: 2, children: 0 } },
+    { label: m.headcount.twoPlusOne, t: { adults: 2, children: 1 } },
+  ];
+
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
-      <p className="text-sm font-medium text-slate-900">幾位大人？有冇小朋友？</p>
+      <p className="text-sm font-medium text-slate-900">{m.headcount.prompt}</p>
       <div className="mt-3 flex flex-wrap gap-2">
-        {QUICK.map((q) => (
+        {quick.map((q) => (
           <button
             key={q.label}
             onClick={() => onPick(q.t)}
@@ -111,7 +108,7 @@ export function HeadcountPicker({ onPick }: { onPick: (t: Travellers) => void })
           onClick={() => setCustom(true)}
           className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:border-slate-400"
         >
-          自訂
+          {m.headcount.custom}
         </button>
       </div>
     </div>
@@ -119,7 +116,7 @@ export function HeadcountPicker({ onPick }: { onPick: (t: Travellers) => void })
 }
 
 /**
- * 語音輸入按鈕（票 05）。
+ * 語音輸入按鈕（票 05）。文案隨語言。
  * 辨識中的臨時文字 → onInterim（填入輸入框）；定稿 → onFinal（直接送出）。
  * 不支援 / 出錯 / 權限被拒 → onNotice（以對話訊息提示）。
  */
@@ -136,6 +133,7 @@ export function MicButton({
   disabled?: boolean;
   size?: "md" | "sm";
 }) {
+  const { m, locale } = useI18n();
   const toldRef = useRef(false);
   const lastErrRef = useRef<string | null>(null);
 
@@ -144,7 +142,6 @@ export function MicButton({
     else onInterim(text);
   });
 
-  // 出錯時以對話訊息提示（去重複）
   useEffect(() => {
     if (speech.error && speech.error !== lastErrRef.current) {
       lastErrRef.current = speech.error;
@@ -154,12 +151,12 @@ export function MicButton({
 
   const handleClick = () => {
     if (!speech.supported) {
-      onNotice("呢個瀏覽器唔支援語音輸入，直接打字就得（Chrome / Edge 支援最好）。");
+      onNotice(m.voice.unsupported);
       return;
     }
     if (!speech.listening && !toldRef.current) {
       toldRef.current = true;
-      onNotice("🎤 語音由瀏覽器嘅語音服務辨識（Chrome 會上傳音訊至 Google），本助手唔會儲存錄音。");
+      onNotice(m.voice.privacy);
     }
     speech.toggle();
   };
@@ -171,12 +168,11 @@ export function MicButton({
       type="button"
       onClick={handleClick}
       disabled={disabled}
-      title={speech.supported ? "語音輸入" : "此瀏覽器不支援語音輸入"}
-      aria-label={speech.listening ? "停止錄音" : "開始語音輸入"}
+      title={speech.supported ? m.voice.label : m.voice.unsupported}
+      aria-label={speech.listening ? m.voice.stop : m.voice.label}
+      data-locale={locale}
       className={`flex ${px} flex-none items-center justify-center rounded-full transition disabled:opacity-40 ${
-        speech.listening
-          ? "animate-pulse bg-red-500 text-white"
-          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+        speech.listening ? "animate-pulse bg-red-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
       }`}
     >
       🎤

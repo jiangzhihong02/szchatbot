@@ -17,7 +17,7 @@ import type { IntentKey } from "./intents";
  */
 
 // 重新導出純定義，讓既有入口（冒煙腳本等）仍可從 dispatcher 取用。
-export { PRESET_BUTTONS, KEYWORDS, matchIntent, aliasesFor, labelFor } from "./intents";
+export { PRESET_BUTTONS, KEYWORDS, matchIntent, aliasesFor } from "./intents";
 export type { IntentKey, PresetButton } from "./intents";
 
 export interface DispatchOptions {

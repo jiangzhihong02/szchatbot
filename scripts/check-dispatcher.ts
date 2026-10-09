@@ -9,6 +9,8 @@ import {
 } from "../src/lib/dispatcher";
 import type { Card } from "../src/lib/types";
 import { mapAmapForecast, mockWeather } from "../src/lib/weather";
+import { messages } from "../src/lib/i18n/messages";
+import { LOCALES } from "../src/lib/i18n/config";
 
 let passed = 0;
 const failures: string[] = [];
@@ -26,10 +28,10 @@ function cardOf(cards: Card[], type: Card["type"]): Card | undefined {
 }
 
 async function main() {
-  // ── 1. 每个别名（额外别名 + 按钮 label）都命中自己的意图 ──
+  // ── 1. 每个别名（额外别名 + **三语**按钮 label）都命中自己的意图 ──
   for (const b of PRESET_BUTTONS) {
-    const aliases = [...KEYWORDS[b.key], b.label];
-    for (const w of aliases) {
+    const labels = LOCALES.map((l) => messages[l].presets[b.key].label);
+    for (const w of [...KEYWORDS[b.key], ...labels]) {
       check(`別名 "${w}" → ${b.key}`, matchIntent(w) === b.key);
     }
   }

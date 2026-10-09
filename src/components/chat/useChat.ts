@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 import type { Card, Travellers } from "@/lib/types";
-import { labelFor } from "@/lib/intents";
 import type { IntentKey } from "@/lib/intents";
+import { useI18n } from "@/components/i18n/LocaleProvider";
 
 /**
  * 聊天狀態（兩種版面共用）。
@@ -20,9 +20,6 @@ export type ChatMsg = {
   fromIntent?: IntentKey;
   routeIndex?: number;
 };
-
-export const GREETING =
-  "你好！我係你嘅深圳旅遊助手 👋 想搵食、plan 路線、睇天氣定計優惠？可以㩒下面嘅掣，或者直接打字問我。";
 
 const uid = () => Math.random().toString(36).slice(2);
 
@@ -80,8 +77,9 @@ async function streamChat(
 }
 
 export function useChat() {
+  const { m } = useI18n();
   const [messages, setMessages] = useState<ChatMsg[]>([
-    { id: uid(), role: "assistant", text: GREETING },
+    { id: uid(), role: "assistant", text: m.greeting },
   ]);
   const [busy, setBusy] = useState(false);
   const [awaitingHeadcount, setAwaitingHeadcount] = useState<string | null>(null);
@@ -98,7 +96,7 @@ export function useChat() {
     append({ id, role: "assistant", cards: [], fromIntent: intent, routeIndex: opts.routeIndex ?? 0 });
     const r = await callDispatch({ intent, ...opts });
     if (r.matched && r.needsInput === "travellers") {
-      replace(id, { cards: undefined, text: "幾位大人？有冇小朋友？" });
+      replace(id, { cards: undefined, text: m.headcount.prompt });
       setAwaitingHeadcount(id);
     } else if (r.matched) {
       replace(id, { cards: r.cards });
@@ -108,11 +106,11 @@ export function useChat() {
   async function sendIntent(intent: IntentKey) {
     if (busy) return;
     setBusy(true);
-    append({ id: uid(), role: "user", text: labelFor(intent) });
+    append({ id: uid(), role: "user", text: m.presets[intent].label });
     try {
       await showIntent(intent);
     } catch {
-      append({ id: uid(), role: "assistant", text: "抱歉，暫時攞唔到資料，請再試一次。" });
+      append({ id: uid(), role: "assistant", text: m.errors.data });
     } finally {
       setBusy(false);
     }
@@ -125,7 +123,7 @@ export function useChat() {
       const r = await callDispatch({ intent: "pricing", travellers });
       if (r.matched) replace(msgId, { text: undefined, cards: r.cards });
     } catch {
-      replace(msgId, { text: "抱歉，暫時計唔到，請再試一次。" });
+      replace(msgId, { text: m.errors.calc });
     } finally {
       setBusy(false);
     }
@@ -159,7 +157,7 @@ export function useChat() {
       if (r.matched) {
         if (r.needsInput === "travellers") {
           const id = uid();
-          append({ id, role: "assistant", text: "幾位大人？有冇小朋友？", fromIntent: "pricing" });
+          append({ id, role: "assistant", text: m.headcount.prompt, fromIntent: "pricing" });
           setAwaitingHeadcount(id);
         } else {
           append({ id: uid(), role: "assistant", cards: r.cards, fromIntent: r.intent, routeIndex: 0 });
@@ -175,7 +173,7 @@ export function useChat() {
       );
       replace(id, { streaming: false });
     } catch {
-      append({ id: uid(), role: "assistant", text: "抱歉，暫時有啲問題，請再試一次。" });
+      append({ id: uid(), role: "assistant", text: m.errors.generic });
     } finally {
       setBusy(false);
     }
