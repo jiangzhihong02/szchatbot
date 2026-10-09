@@ -94,17 +94,25 @@ export function useChat() {
   const replace = (id: string, next: Partial<ChatMsg>) =>
     setMessages((prev) => prev.map((msg) => (msg.id === id ? { ...msg, ...next } : msg)));
 
-  /** 按鈕意圖 → 卡片（交通優惠卡缺出行組合則彈快捷選項）。 */
+  /**
+   * 分發結果 → 訊息狀態。按鈕與手打**共用這一處轉換** ——
+   * 「缺出行組合就彈快捷選項」只在這裡表述一次。
+   */
+  function applyResult(id: string, r: DispatchResponse) {
+    if (!r.matched) return;
+    if (r.needsInput === "travellers") {
+      replace(id, { cards: undefined, text: m.travellers.prompt });
+      setAwaitingTravellers(id);
+    } else {
+      replace(id, { cards: r.cards, fromIntent: r.intent, routeIndex: 0 });
+    }
+  }
+
+  /** 按鈕意圖 → 卡片。 */
   async function showIntent(intent: IntentKey, opts: { travellers?: Travellers; routeIndex?: number } = {}) {
     const id = uid();
     append({ id, role: "assistant", cards: [], fromIntent: intent, routeIndex: opts.routeIndex ?? 0 });
-    const r = await callDispatch({ intent, ...opts });
-    if (r.matched && r.needsInput === "travellers") {
-      replace(id, { cards: undefined, text: m.travellers.prompt });
-      setAwaitingTravellers(id);
-    } else if (r.matched) {
-      replace(id, { cards: r.cards });
-    }
+    applyResult(id, await callDispatch({ intent, ...opts }));
   }
 
   async function sendIntent(intent: IntentKey) {
@@ -159,13 +167,9 @@ export function useChat() {
     try {
       const r = await callDispatch({ text });
       if (r.matched) {
-        if (r.needsInput === "travellers") {
-          const id = uid();
-          append({ id, role: "assistant", text: m.travellers.prompt, fromIntent: "transportDeals" });
-          setAwaitingTravellers(id);
-        } else {
-          append({ id: uid(), role: "assistant", cards: r.cards, fromIntent: r.intent, routeIndex: 0 });
-        }
+        const id = uid();
+        append({ id, role: "assistant", cards: [] });
+        applyResult(id, r);
         return;
       }
 

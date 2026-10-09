@@ -30,7 +30,10 @@ export type DispatchResult =
   | { matched: false }
   | { matched: true; intent: IntentKey; cards: Card[]; needsInput?: "travellers" };
 
-/** 意图 → 卡片。按鈕直接呼叫此函式；手打輸入先 matchIntent 再呼叫。 */
+/**
+ * 意圖 → 卡片。**低階**：呼叫方（`dispatchIntent`）須先保證 `transportDeals` 帶了出行組合；
+ * 這裡沒帶只是不變式斷言（程式錯誤），不是使用者可見的行為。
+ */
 export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}): Promise<Card[]> {
   switch (intent) {
     case "food":
@@ -50,9 +53,7 @@ export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}):
 
     case "transportDeals": {
       if (!opts.travellers) {
-        throw new Error(
-          "buildCards('transportDeals') 需要 opts.travellers —— 應由 UI 的出行組合快捷選項提供（契約規則 3）。"
-        );
+        throw new Error("buildCards('transportDeals') 不變式：呼叫方須先保證有 travellers（見 dispatchIntent）。");
       }
       return [{ type: "transportDeals", data: buildPricingPlan(opts.travellers) }];
     }
@@ -62,15 +63,21 @@ export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}):
   }
 }
 
-/** 意圖分發入口：命中返回卡片；未命中交回呼叫方（→ /api/chat）。 */
-export async function dispatch(text: string, opts: DispatchOptions = {}): Promise<DispatchResult> {
-  const intent = matchIntent(text);
-  if (!intent) return { matched: false };
-
-  // 「算優惠＋交通」需要出行組合；手打時拿不到，交回 UI 彈快捷選項。
+/**
+ * 意圖分發入口（**唯一**）：按鈕與手打都走這裡。
+ * 「算優惠＋交通 需要出行組合」這條規則**只在此處表述一次** —— 回傳 `needsInput` 而非拋錯，
+ * 由 UI 據此彈快捷選項。
+ */
+export async function dispatchIntent(intent: IntentKey, opts: DispatchOptions = {}): Promise<DispatchResult> {
   if (intent === "transportDeals" && !opts.travellers) {
     return { matched: true, intent, cards: [], needsInput: "travellers" };
   }
-
   return { matched: true, intent, cards: await buildCards(intent, opts) };
+}
+
+/** 手打文字入口：命中意圖就轉給 `dispatchIntent`；未命中交回呼叫方（→ /api/chat）。 */
+export async function dispatch(text: string, opts: DispatchOptions = {}): Promise<DispatchResult> {
+  const intent = matchIntent(text);
+  if (!intent) return { matched: false };
+  return dispatchIntent(intent, opts);
 }

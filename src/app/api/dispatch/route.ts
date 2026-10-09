@@ -1,4 +1,4 @@
-import { buildCards, dispatch } from "@/lib/dispatcher";
+import { dispatch, dispatchIntent } from "@/lib/dispatcher";
 import type { DispatchOptions } from "@/lib/dispatcher";
 import { PRESET_BUTTONS } from "@/lib/presets";
 import type { IntentKey } from "@/lib/presets";
@@ -37,16 +37,11 @@ export async function POST(req: Request): Promise<Response> {
   const opts: DispatchOptions = { travellers: body.travellers, routeIndex: body.routeIndex };
 
   try {
-    // 按鈕：直接給定意圖
+    // 按鈕與手打共用**同一個**分發入口 —— 「需要出行組合」的規則只在 dispatcher 裡表述一次。
     if (typeof body.intent === "string" && INTENTS.has(body.intent)) {
-      const intent = body.intent as IntentKey;
-      if (intent === "transportDeals" && !opts.travellers) {
-        return json({ matched: true, intent, needsInput: "travellers", cards: [] });
-      }
-      return json({ matched: true, intent, cards: await buildCards(intent, opts) });
+      return json(await dispatchIntent(body.intent as IntentKey, opts));
     }
 
-    // 手打：走關鍵詞匹配
     if (typeof body.text === "string") {
       return json(await dispatch(body.text, opts));
     }
