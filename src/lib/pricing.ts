@@ -1,4 +1,4 @@
-import type { PricingData, TransportPlan, DiscountItem } from "./types";
+import type { PricingData, TransportPlan, DiscountItem, Travellers } from "./types";
 
 /**
  * 优惠 / 交通规则引擎（确定性逻辑）
@@ -7,10 +7,15 @@ import type { PricingData, TransportPlan, DiscountItem } from "./types";
  * 下面的具体数额/折扣只是示例规则，请按真实运营策略调整。
  */
 
+/** 把人数夹到 0–50 的整数（两个入口共用，避免重复）。 */
+function clampCount(n: number): number {
+  return Math.max(0, Math.min(50, Math.floor(n || 0)));
+}
+
 /** 根据人数和小孩数量推荐交通方式 */
-function planTransport(adults: number, children: number): TransportPlan {
-  const total = adults + children;
-  const hasChild = children > 0;
+function planTransport(t: Travellers): TransportPlan {
+  const total = t.adults + t.children;
+  const hasChild = t.children > 0;
 
   if (total <= 2 && !hasChild) {
     return {
@@ -36,17 +41,17 @@ function planTransport(adults: number, children: number): TransportPlan {
 }
 
 /** 根据人数和小孩计算可享优惠 */
-function planDiscounts(adults: number, children: number): DiscountItem[] {
-  const total = adults + children;
+function planDiscounts(t: Travellers): DiscountItem[] {
+  const total = t.adults + t.children;
   const items: DiscountItem[] = [];
 
-  if (children > 0) {
+  if (t.children > 0) {
     items.push({
       name: "兒童優惠",
       detail: "身高 1.2m 以下兒童地鐵免費；多數景點 1.2–1.5m 享半價兒童票。",
     });
   }
-  if (adults >= 1 && children >= 1) {
+  if (t.adults >= 1 && t.children >= 1) {
     items.push({
       name: "親子套票",
       detail: "大部分樂園 / 景點有「1大1小」或「2大1小」家庭套票，比單買約省 15%。",
@@ -77,20 +82,17 @@ function paymentTips(): string[] {
   ];
 }
 
-export function buildPricingPlan(
-  adultsRaw: number,
-  childrenRaw: number
-): PricingData {
-  const adults = Math.max(0, Math.min(50, Math.floor(adultsRaw || 0)));
-  const children = Math.max(0, Math.min(50, Math.floor(childrenRaw || 0)));
+export function buildPricingPlan(travellers: Travellers): PricingData {
+  const t: Travellers = {
+    adults: clampCount(travellers.adults),
+    children: clampCount(travellers.children),
+  };
 
   return {
-    adults,
-    children,
-    transport: planTransport(adults, children),
-    discounts: planDiscounts(adults, children),
+    travellers: t,
+    transport: planTransport(t),
+    discounts: planDiscounts(t),
     paymentTips: paymentTips(),
-    estimateNote:
-      "以上為示例規則與大致費用，實際以商戶 / 景點當日公告為準。",
+    estimateNote: "以上為示例規則與大致費用，實際以商戶 / 景點當日公告為準。",
   };
 }

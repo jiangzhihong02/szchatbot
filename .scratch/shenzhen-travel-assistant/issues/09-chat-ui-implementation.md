@@ -24,6 +24,7 @@ Label: wayfinder:task
 
 ## 落地時要遵守原型票的 verdict
 
+- **一手資料**：原型的完整變體集（A/B/C + 浮動 switching 條）在 **`prototype/chat-ui` 分支**（`src/components/prototype/`）。看：`git checkout prototype/chat-ui && npm run dev`。
 - **服務端讀 `user-agent`** 決定結構：手機 → A 對話優先；桌面 → C 分欄指令台。
 - **結合響應式**做結構內微調（UA 對 iPad / 折疊屏 / 桌面模式不準）。
 - 折進正式代碼時，把**落選變體 B 與浮動 switching 條移出主幹**。

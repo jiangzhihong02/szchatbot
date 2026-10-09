@@ -34,6 +34,7 @@ Status: open
 - [研究：深圳美食 / 景点 / 优惠精选内容库](issues/03-shenzhen-content-library.md)：产出精选内容库（7 路线 / 12 美食 / 10 优惠 + 8 类稳定优惠形态 / 港客实用信息 + system prompt 段落），来源偏官方一手，未核实项已标注。**时效：新皇岗口岸 2026-10-12 开通。** 详情见 `research/03-shenzhen-content.md`。
 - [决策：预设按钮清单与每个按钮的固定输出格式](issues/01-preset-buttons-and-output-formats.md)：定下 6 按钮 → 关键词 → 卡片契约；一键一卡、路线可「換一條」、美食/优惠为清单卡、人数弹快捷选项、手打命中走同一确定性路径。**这是前端与规则引擎的共同契约。**
 - [原型：聊天界面与卡片视觉](issues/02-chat-ui-and-card-visuals.md)：**按 UA 自动分发**——手機用 A 對話優先、桌面用 C 分欄指令台；B 卡片牆落选。已实现并验证（`src/app/page.tsx`），结合响应式微调。原型在 `src/components/prototype/`。
+- [任務：規則引擎分發器 + 內容數據落地](issues/08-rule-engine-dispatcher.md)：分發器（關鍵詞 → 卡片）+ 數據落地（7 路線 / 12 美食 / 10 優惠）+ 型別擴充（foodList/dealList + 3 日天氣）。19 個匹配用例全過，build 綠。**順帶完成票 06 的天氣代碼部分。**
 
 ## Not yet specified
 

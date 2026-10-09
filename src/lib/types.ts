@@ -1,66 +1,61 @@
 // 共享类型定义（深圳旅游助手）
 
-/** 聊天消息里可以承载的卡片类型 */
-export type CardType = "route" | "weather" | "pricing" | "deal" | "food";
+export type StopType = "food" | "sight" | "shop" | "transport";
 
-/** 单条聊天消息。assistant 的消息可以是纯文本，也可以附带结构化卡片 */
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  /** 纯文本内容（气泡里显示的话） */
-  text?: string;
-  /** 结构化卡片（固定格式呈现，不依赖大模型自由发挥） */
-  cards?: Card[];
-}
+/** 人均价位。"$$–$$$" 用于研究库里给出区间的项，避免把信息压成单值。 */
+export type PriceLevel = "$" | "$$" | "$$$" | "$$–$$$";
 
-export interface Card {
-  type: CardType;
-  data: unknown;
-}
-
-/** 旅游路线卡片 */
-export interface RouteData {
-  id: string;
-  title: string;
-  theme: string; // 主题标签，如「美食」「亲子」「文艺」
-  durationHours: number;
-  stops: RouteStop[];
-  bestFor: string; // 适合人群
-  tips?: string;
+/** 出行人数。adults/children 总是成对出现，故立一个类型（消 Data Clump）。 */
+export interface Travellers {
+  adults: number;
+  children: number;
 }
 
 export interface RouteStop {
   name: string;
-  area: string; // 所在区域
+  area: string;
   desc: string;
-  type: "food" | "sight" | "shop" | "transport";
+  type: StopType;
 }
 
-/** 天气卡片 */
-export interface WeatherData {
-  city: string;
-  date: string;
-  tempNow: number;
+/** 旅游路线。pool 决定它属于「一日遊」还是「親子」按钮的候选池（支持「換一條」）。 */
+export interface RouteData {
+  id: string;
+  title: string;
+  theme: string;
+  durationHours: number;
+  area: string;
+  bestFor: string;
+  tips?: string;
+  pool: "day" | "family";
+  stops: RouteStop[];
+}
+
+/** 路线卡片的载荷：带候选索引，供前端「換一條」。 */
+export interface RouteCardData {
+  route: RouteData;
+  index: number;
+  total: number;
+}
+
+export interface WeatherDay {
+  date: string; // 日期，或「今日 / 明日 / 後日」
+  text: string; // 天气现象
   tempMax: number;
   tempMin: number;
-  text: string; // 天气现象，如「多云」
   humidity: number;
-  advice: string; // 出行建议
+}
+
+/** 天气卡片：按按钮契约显示「今日 + 未来 2 天」。 */
+export interface WeatherData {
+  city: string;
+  days: WeatherDay[];
+  advice: string;
   source: "qweather" | "mock";
 }
 
-/** 优惠 / 支付方案 + 交通建议卡片 */
-export interface PricingData {
-  adults: number;
-  children: number;
-  transport: TransportPlan;
-  discounts: DiscountItem[];
-  paymentTips: string[];
-  estimateNote: string;
-}
-
 export interface TransportPlan {
-  mode: string; // 推荐出行方式
+  mode: string;
   reason: string;
   roughCost: string;
 }
@@ -70,7 +65,27 @@ export interface DiscountItem {
   detail: string;
 }
 
-/** 优惠活动卡片（来自可插拔数据源） */
+/** 优惠 + 交通卡片（「算優惠＋交通」按钮）。 */
+export interface PricingData {
+  travellers: Travellers;
+  transport: TransportPlan;
+  discounts: DiscountItem[];
+  paymentTips: string[];
+  estimateNote: string;
+}
+
+/** 美食清单卡里的一项。featured 决定是否进入首发「找美食」的 3–4 家。 */
+export interface FoodData {
+  name: string;
+  area: string;
+  category: string;
+  mustTry: string;
+  priceLevel: PriceLevel;
+  priceRMB: string; // 人均参考（人民币）
+  featured?: boolean;
+}
+
+/** 优惠活动（来自可插拔数据源）。 */
 export interface DealData {
   id: string;
   title: string;
@@ -78,15 +93,26 @@ export interface DealData {
   area: string;
   summary: string;
   validUntil?: string;
-  sourceName: string; // 数据来源名称
+  sourceName: string;
   sourceUrl?: string;
 }
 
-/** 美食推荐卡片 */
-export interface FoodData {
-  name: string;
-  area: string;
-  category: string; // 菜系
-  mustTry: string;
-  priceLevel: "$" | "$$" | "$$$";
+/**
+ * 聊天消息里的卡片 —— 可辨识联合（discriminated union）。
+ * 调用方对 data 无需再强制转换，减少 Primitive Obsession 与重复 cast。
+ */
+export type Card =
+  | { type: "route"; data: RouteCardData }
+  | { type: "weather"; data: WeatherData }
+  | { type: "pricing"; data: PricingData }
+  | { type: "foodList"; data: FoodData[] }
+  | { type: "dealList"; data: DealData[] };
+
+export type CardType = Card["type"];
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  text?: string;
+  cards?: Card[];
 }
