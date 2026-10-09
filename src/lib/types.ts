@@ -16,6 +16,9 @@ export interface RouteStop {
   area: string;
   desc: string;
   type: StopType;
+  /** 經緯度（高德座標系），供路線地圖使用（票 10）。 */
+  lng: number;
+  lat: number;
 }
 
 /** 旅游路线。pool 决定它属于「一日遊」还是「親子」按钮的候选池（支持「換一條」）。 */

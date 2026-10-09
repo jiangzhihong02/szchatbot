@@ -45,6 +45,17 @@ function RouteCard({ data, onCycle }: { data: RouteCardData; onCycle?: () => voi
         ))}
       </ol>
 
+      {/* 路線地圖（票 10）：伺服器代理取圖，key 不出現在瀏覽器 */}
+      <img
+        src={`/api/route-map?routeId=${encodeURIComponent(route.id)}`}
+        alt={`${route.title} 路線圖`}
+        loading="lazy"
+        className="mt-3 w-full rounded-xl ring-1 ring-slate-900/5"
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+        }}
+      />
+
       {route.tips && (
         <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">💡 {route.tips}</p>
       )}

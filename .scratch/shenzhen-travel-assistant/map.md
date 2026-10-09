@@ -37,6 +37,7 @@ Status: open
 - [任務：規則引擎分發器 + 內容數據落地](issues/08-rule-engine-dispatcher.md)：分發器（關鍵詞 → 卡片）+ 數據落地（7 路線 / 12 美食 / 10 優惠）+ 型別擴充（foodList/dealList + 3 日天氣）。19 個匹配用例全過，build 綠。**順帶完成票 06 的天氣代碼部分。**
 - [任務：接入 Claude API + system prompt 到 /api/chat](issues/04-claude-api-integration.md)：串流 SSE 的 `/api/chat`（Opus 4.8，adaptive thinking + low effort）+ 約 1000 字繁體 system prompt。**顯式隔離 shell 的 Claude Code 代理環境**，否則會靜默用 DeepSeek。降級路徑已驗證；真實路徑待填 key。
 - [任務：聊天界面與卡片組件](issues/09-chat-ui-implementation.md)：正式聊天界面——按 UA 分發（手機對話優先 / 桌面分欄指令台）+ 5 種卡片 + `/api/dispatch`。純定義拆到客戶端安全的 `src/lib/intents.ts`。已驗證。
+- [任務：路線地圖（高德路徑規劃）](issues/10-amap-route-map.md)：站點座標一次地理編碼烘入資料；伺服器端逐段駕車路徑規劃 → **高德靜態地圖**，經 `/api/route-map` **代理取圖**（key 不外洩）。原定 JS 互動地圖因缺第二把 key 改為靜態圖。已驗證。
 
 ## Not yet specified
 
