@@ -5,7 +5,7 @@ import { matchIntent, KEYWORDS, aliasesFor } from "../src/lib/intents";
 import { PRESET_BUTTONS } from "../src/lib/presets";
 import type { IntentKey } from "../src/lib/presets";
 import type { Card } from "../src/lib/types";
-import { mapAmapForecast, mockWeather } from "../src/lib/weather";
+import { mapAmapForecast, mockWeather } from "../src/lib/weather-core";
 import { weatherTerm, windTerm, adviceKeyFor } from "../src/lib/i18n/weather-text";
 
 let passed = 0;
