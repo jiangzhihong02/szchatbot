@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-10-09T10:08:28.082Z",
+  "routes": {
+    "id": "foodie-old-town",
+    "title": {
+      "zh-Hans": "罗湖老城觅食一日游",
+      "en": "Luohu Old Town Food Crawl (Full Day)"
+    },
+    "theme": {
+      "zh-Hans": "美食",
+      "en": "Food"
+    },
+    "area": {
+      "zh-Hans": "罗湖",
+      "en": "Luohu（罗湖）"
+    },
+    "bestFor": {
+      "zh-Hans": "情侣 / 三五好友、吃货、想一次尝遍多款小吃",
+      "en": "Couples or small groups of friends, foodies, and anyone who wants to sample lots of snacks in one go"
+    },
+    "tips": {
+      "zh-Hans": "避开 12:00–14:00 及 18:00–20:00 两个高峰；东门小吃多为一人份，建议 3–4 人分着吃、多点几款。",
+      "en": "Skip the two rush windows, 12:00–14:00 and 18:00–20:00. Dongmen snacks are mostly single portions, so bring 3–4 people and share so you can try more."
+    },
+    "stops": [
+      {
+        "name": {
+          "zh-Hans": "东门老街 / 东门町美食街",
+          "en": "Dongmen Old Street / Dongmen-cho Food Street（东门老街 / 东门町美食街）"
+        },
+        "area": {
+          "zh-Hans": "罗湖",
+          "en": "Luohu（罗湖）"
+        },
+        "desc": {
+          "zh-Hans": "老街牌坊、骑楼街景；东门町聚集牛杂、烤生蚝、肠粉、甜品等小吃",
+          "en": "Old-street archway and arcade-house streetscapes. Dongmen-cho is packed with snacks like beef offal, grilled oysters, rice rolls, and sweet soups."
+        }
+      },
+      {
+        "name": {
+          "zh-Hans": "向西村 / 蔡屋围",
+          "en": "Xiangxi Village / Caiwuwei（向西村 / 蔡屋围）"
+        },
+        "area": {
+          "zh-Hans": "罗湖",
+          "en": "Luohu（罗湖）"
+        },
+        "desc": {
+          "zh-Hans": "潮汕砂锅粥、卤水拼盘、烧腊；本地人的夜宵场",
+          "en": "Chaoshan clay-pot congee, braised-meat platters, and Cantonese roast meats. A late-night spot the locals love."
+        }
+      },
+      {
+        "name": {
+          "zh-Hans": "罗湖万象城",
+          "en": "Luohu MixC（罗湖万象城）"
+        },
+        "area": {
+          "zh-Hans": "罗湖",
+          "en": "Luohu（罗湖）"
+        },
+        "desc": {
+          "zh-Hans": "饭后逛商场、买伴手礼（Ole' 超市）；地铁大剧院站直达",
+          "en": "After dinner, browse the mall and grab souvenirs (Ole' supermarket). Right by Grand Theater Station（大剧院站）on the metro."
+        }
+      },
+      {
+        "name": {
+          "zh-Hans": "KK TIME / 万象食家",
+          "en": "KK TIME / MixC Food Hall（万象食家）"
+        },
+        "area": {
+          "zh-Hans": "罗湖",
+          "en": "Luohu（罗湖）"
+        },
+        "desc": {
+          "zh-Hans": "新式餐饮楼层，可作夜宵或甜品收尾",
+          "en": "A trendy dining floor, perfect for a late-night bite or a sweet finish to the day."
+        }
+      }
+    ]
+  },
+  "foods": {
+    "name": {
+      "zh-Hans": "东门老街小吃",
+      "en": "Dongmen Old Street Snacks（东门老街小吃）"
+    },
+    "area": {
+      "zh-Hans": "罗湖・东门",
+      "en": "Luohu · Dongmen（罗湖・东门）"
+    },
+    "category": {
+      "zh-Hans": "广式小吃 / 街头小吃",
+      "en": "Cantonese & street snacks"
+    },
+    "mustTry": {
+      "zh-Hans": "牛杂、肠粉、烤生蚝、甜品",
+      "en": "beef offal, rice noodle rolls, grilled oysters, and sweet soups"
+    }
+  },
+  "deals": {
+    "id": "d-window-world",
+    "title": {
+      "zh-Hans": "深圳世界之窗 门票 / 夜场票",
+      "en": "Window of the World Shenzhen Tickets / Night Session (深圳世界之窗)"
+    },
+    "merchant": {
+      "zh-Hans": "深圳世界之窗",
+      "en": "Window of the World Shenzhen (深圳世界之窗)"
+    },
+    "area": {
+      "zh-Hans": "南山",
+      "en": "Nanshan (南山)"
+    },
+    "summary": {
+      "zh-Hans": "全天成人约 ¥220、夜场约 ¥120；1.2 米以下及 70 岁以上免费。网上提前购票通常比现场便宜。",
+      "en": "All-day adult tickets are about ¥220, night session about ¥120. Free for kids under 1.2m and seniors over 70. Booking online in advance is usually cheaper than at the gate."
+    }
+  }
+}

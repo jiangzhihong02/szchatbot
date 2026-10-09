@@ -3,6 +3,7 @@
 import type { Card, RouteCardData, WeatherData, PricingData, FoodData, DealData } from "@/lib/types";
 import { fmt } from "@/lib/presets";
 import { useI18n } from "@/components/i18n/LocaleProvider";
+import { localizeRoute, localizeFood, localizeDeal } from "@/lib/i18n/content";
 
 /**
  * 卡片渲染。契约见票 01；型別為可辨識聯合，故各分支的 data 自動收窄。
@@ -10,8 +11,9 @@ import { useI18n } from "@/components/i18n/LocaleProvider";
  */
 
 function RouteCard({ data, onCycle }: { data: RouteCardData; onCycle?: () => void }) {
-  const { m } = useI18n();
-  const { route, index, total } = data;
+  const { m, locale } = useI18n();
+  const route = localizeRoute(data.route, locale);
+  const { index, total } = data;
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
       <div className="flex items-center gap-2">
@@ -141,12 +143,13 @@ function PricingCard({ data }: { data: PricingData }) {
 }
 
 function FoodListCard({ data }: { data: FoodData[] }) {
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
+  const foods = data.map((f) => localizeFood(f, locale));
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
       <p className="text-sm font-semibold text-slate-900">🍜 {m.cards.foodTitle}</p>
       <div className="mt-2 divide-y divide-slate-100">
-        {data.map((f) => (
+        {foods.map((f) => (
           <div key={f.name} className="flex items-start justify-between gap-3 py-2">
             <div>
               <p className="text-sm font-medium text-slate-900">{f.name}</p>
@@ -166,12 +169,13 @@ function FoodListCard({ data }: { data: FoodData[] }) {
 }
 
 function DealListCard({ data }: { data: DealData[] }) {
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
+  const deals = data.map((d) => localizeDeal(d, locale));
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
       <p className="text-sm font-semibold text-slate-900">🎫 {m.cards.dealTitle}</p>
       <div className="mt-2 space-y-2">
-        {data.map((d) => (
+        {deals.map((d) => (
           <div key={d.id} className="rounded-xl border border-slate-100 p-3">
             <p className="text-sm font-medium text-slate-900">{d.title}</p>
             <p className="text-xs text-slate-400">
