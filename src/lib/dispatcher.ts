@@ -1,4 +1,4 @@
-import type { Card, RouteCardData, Travellers } from "./types";
+import type { Card, RouteCardData } from "./types";
 import { routesByPool } from "./data/routes";
 import { featuredFoods } from "./data/foods";
 import { getWeather } from "./weather";
@@ -6,6 +6,10 @@ import { buildPricingPlan } from "./pricing";
 import { fetchAllDeals } from "./sources";
 import { matchIntent } from "./intents";
 import type { IntentKey } from "./intents";
+import type { DispatchOptions, DispatchResult } from "./dispatch-contract";
+
+// 契約型別在 `dispatch-contract`（客戶端安全）；這裡再導出一次，方便伺服器端呼叫方。
+export type { DispatchOptions, DispatchResult } from "./dispatch-contract";
 
 /**
  * 意圖分發（規則引擎）—— **伺服器端**。
@@ -18,17 +22,6 @@ import type { IntentKey } from "./intents";
  * 純定義（PRESET_BUTTONS / KEYWORDS / matchIntent）在 `./intents`，前端可直接 import。
  * 契約見 .scratch/.../issues/01-preset-buttons-and-output-formats.md；詞彙見 CONTEXT.md。
  */
-
-export interface DispatchOptions {
-  /** 「算優惠＋交通」需要的出行組合；由 UI 的快捷選項提供。 */
-  travellers?: Travellers;
-  /** 「換一條」当前索引 */
-  routeIndex?: number;
-}
-
-export type DispatchResult =
-  | { matched: false }
-  | { matched: true; intent: IntentKey; cards: Card[]; needsInput?: "travellers" };
 
 /**
  * 意圖 → 卡片。**低階**：呼叫方（`dispatchIntent`）須先保證 `transportDeals` 帶了出行組合；

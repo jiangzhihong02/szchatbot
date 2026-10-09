@@ -7,6 +7,9 @@ import type { IntentKey } from "../src/lib/presets";
 import type { Card } from "../src/lib/types";
 import { mapAmapForecast, mockWeather } from "../src/lib/weather-core";
 import { weatherTerm, windTerm, adviceKeyFor } from "../src/lib/i18n/weather-text";
+import { transcriptFor, nextRouteIndex } from "../src/lib/conversation";
+import type { ChatMsg } from "../src/lib/conversation";
+import { resolveVariant } from "../src/lib/device";
 
 let passed = 0;
 const failures: string[] = [];
@@ -198,6 +201,32 @@ async function main() {
 
   const btn = await dispatch("找美食");
   check("dispatch 按鈕字串命中 → foodList", btn.matched === true && btn.cards[0]?.type === "foodList");
+
+  // ── 純對話規則（lib/conversation）—— 以前埋在 useChat 的 fetch 裡，無法檢視 ──
+  const msgs: ChatMsg[] = [
+    { id: "1", role: "assistant", text: "hi" },
+    { id: "2", role: "user", text: "找美食" },
+    { id: "3", role: "assistant", cards: [] }, // 純卡片 → 不進 transcript
+    { id: "4", role: "user", text: "   " }, // 空白 → 不進
+    { id: "5", role: "assistant", text: "ok" },
+  ];
+  const tr = transcriptFor(msgs);
+  check("transcript 只帶有文字的訊息", tr.length === 3);
+  check("transcript 保持順序", tr[0].content === "hi" && tr[2].content === "ok");
+  check("transcript 取最後 N 則", transcriptFor(msgs, 2).map((m) => m.content).join("|") === "找美食|ok");
+  check("nextRouteIndex", nextRouteIndex(undefined) === 1 && nextRouteIndex(3) === 4);
+
+  // ── 裝置分發（lib/device；ADR-0002 的判斷與覆寫入口）──
+  const IPHONE =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1";
+  const DESKTOP = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0 Safari/537.36";
+  const IPAD = "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Safari/604.1";
+  check("iPhone → mobile", resolveVariant(IPHONE) === "mobile");
+  check("桌面 → desktop", resolveVariant(DESKTOP) === "desktop");
+  check("iPad → desktop（平板用分欄）", resolveVariant(IPAD) === "desktop");
+  check("?variant=mobile 覆寫 UA", resolveVariant(DESKTOP, "mobile") === "mobile");
+  check("?variant=desktop 覆寫 UA", resolveVariant(IPHONE, "desktop") === "desktop");
+  check("未知覆寫值 → 回退 UA", resolveVariant(IPHONE, "nonsense") === "mobile");
 
   // ── 报告 ──
   console.log(`\n✅ 通過 ${passed} 項`);

@@ -116,10 +116,3 @@ export type Card =
   | { type: "dealList"; data: DealData[] };
 
 export type CardType = Card["type"];
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  text?: string;
-  cards?: Card[];
-}

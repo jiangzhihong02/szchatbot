@@ -1,5 +1,5 @@
 import { dispatch, dispatchIntent } from "@/lib/dispatcher";
-import type { DispatchOptions } from "@/lib/dispatcher";
+import type { DispatchOptions } from "@/lib/dispatch-contract";
 import { PRESET_BUTTONS } from "@/lib/presets";
 import type { IntentKey } from "@/lib/presets";
 import type { Travellers } from "@/lib/types";

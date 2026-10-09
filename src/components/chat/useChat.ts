@@ -1,43 +1,34 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { Card, Travellers } from "@/lib/types";
+import type { Travellers } from "@/lib/types";
 import type { IntentKey } from "@/lib/intents";
+import type { DispatchResult } from "@/lib/dispatch-contract";
+import { transcriptFor, nextRouteIndex } from "@/lib/conversation";
+import type { ChatMsg } from "@/lib/conversation";
 import { useI18n } from "@/components/i18n/LocaleProvider";
 
 /**
- * 聊天狀態（兩種版面共用）。
- * 流程：先打 /api/dispatch 走確定性路徑；未命中才打 /api/chat 串流問 LLM。
+ * 聊天狀態（兩種版面共用）—— 這是**副作用外殼**：fetch、SSE、React state。
+ * 順序敏感與可測的規則（餵給 LLM 的 transcript、換一條的索引）在 `lib/conversation`（純）。
  *
+ * 流程：先打 /api/dispatch 走確定性路徑；未命中才打 /api/chat 串流問 LLM。
  * 分發不回傳文案（只有結構化卡片），故切語言時已顯示的卡片會即時跟著變；
  * 只有 LLM 的**自由問答**需要把 locale 送給伺服器（決定回答語言）。
  */
 
-export type ChatMsg = {
-  id: string;
-  role: "user" | "assistant";
-  text?: string;
-  cards?: Card[];
-  streaming?: boolean;
-  /** 若這則由某意圖產生，記下它以支持「換一條」。 */
-  fromIntent?: IntentKey;
-  routeIndex?: number;
-};
+export type { ChatMsg };
 
 const uid = () => Math.random().toString(36).slice(2);
 
-type DispatchResponse =
-  | { matched: false }
-  | { matched: true; intent: IntentKey; cards: Card[]; needsInput?: "travellers" };
-
-async function callDispatch(body: unknown): Promise<DispatchResponse> {
+async function callDispatch(body: unknown): Promise<DispatchResult> {
   const res = await fetch("/api/dispatch", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`dispatch ${res.status}`);
-  return (await res.json()) as DispatchResponse;
+  return (await res.json()) as DispatchResult;
 }
 
 /** 讀 /api/chat 的 SSE，逐段回呼。locale 決定 LLM 用哪種語言回答。 */
@@ -98,7 +89,7 @@ export function useChat() {
    * 分發結果 → 訊息狀態。按鈕與手打**共用這一處轉換** ——
    * 「缺出行組合就彈快捷選項」只在這裡表述一次。
    */
-  function applyResult(id: string, r: DispatchResponse) {
+  function applyResult(id: string, r: DispatchResult) {
     if (!r.matched) return;
     if (r.needsInput === "travellers") {
       replace(id, { cards: undefined, text: m.travellers.prompt });
@@ -143,7 +134,7 @@ export function useChat() {
 
   async function cycleRoute(msg: ChatMsg) {
     if (!msg.fromIntent || busy) return;
-    const next = (msg.routeIndex ?? 0) + 1;
+    const next = nextRouteIndex(msg.routeIndex);
     setBusy(true);
     try {
       const r = await callDispatch({ intent: msg.fromIntent, routeIndex: next });
@@ -156,11 +147,8 @@ export function useChat() {
   async function send(raw: string) {
     const text = raw.trim();
     if (!text || busy) return;
-    // 先記下當前對話文字（不含本則），供未命中時餵 LLM。
-    const prior = msgsRef.current
-      .filter((msg) => msg.text && msg.text.trim())
-      .map((msg) => ({ role: msg.role, content: msg.text as string }))
-      .slice(-12);
+    // 先記下當前對話文字（不含本則），供未命中時餵 LLM。規則在 lib/conversation。
+    const prior = transcriptFor(msgsRef.current);
 
     setBusy(true);
     append({ id: uid(), role: "user", text });
