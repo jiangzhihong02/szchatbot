@@ -1,0 +1,63 @@
+name: 口岸資料變更監看
+
+# 只做一件事：官方管制站頁面變了，就開一個 PR 讓人過目。
+# 刻意**不改** src/lib/data/borders.ts —— 那一步留給人（理由見 src/lib/checkpoint-watch.ts）。
+#
+# ⚠️ 兩個要知道的坑：
+#   1. GitHub 對「公開倉庫」的排程工作流有規定：**倉庫連續 60 天沒有活動就自動停用**。
+#      停用時 GitHub 會通知倉庫擁有者；重新啟用是 Actions 頁面點一下。
+#      所以「一直沒收到 PR」有兩種可能：真的沒變，或這個工作流被停用了。
+#   2. 失敗是**大聲的**（紅色 X），不是靜默的：抓不到頁面或版面改版 → 這個 job 會失敗。
+#      這是刻意的 —— 見上面第 1 點的歧義，至少要讓「看不懂」與「沒變」分得開。
+
+on:
+  schedule:
+    # UTC 22:17 = 香港時間 06:17。刻意避開整點：GitHub 說整點是高負載時段，排程會被延遲。
+    - cron: "17 22 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write # 推快照分支
+  pull-requests: write # 開 PR
+
+concurrency:
+  group: border-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 抓取官方頁面並比對
+        env:
+          REPORT_PATH: ${{ runner.temp }}/border-watch-report.md
+        run: npx --yes tsx scripts/watch-borders.ts
+
+      - name: 有變更就開 PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPORT_PATH: ${{ runner.temp }}/border-watch-report.md
+        run: |
+          if git diff --quiet -- .github/border-watch/stations.json; then
+            echo "快照無變更，結束。"
+            exit 0
+          fi
+
+          BRANCH="border-watch/$(date -u +%Y-%m-%d)"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .github/border-watch/stations.json
+          git commit -m "chore(border-watch): 官方管制站頁面有變動"
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --base "${{ github.event.repository.default_branch }}" \
+            --title "口岸監看：官方管制站頁面有變動（$(date -u +%Y-%m-%d)）" \
+            --body-file "$REPORT_PATH"
