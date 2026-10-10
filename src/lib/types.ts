@@ -103,6 +103,42 @@ export interface DealData {
   sourceUrl?: string;
 }
 
+/** 口岸的通關方式鍵（文案在 i18n/messages.ts 的 engine.borderMode）。 */
+export type BorderMode = "rail" | "coach" | "car" | "walk" | "hsr";
+
+/**
+ * 實時排隊等級 —— 香港入境處公開數據的三級狀態，另加維護與未開放。
+ * ⚠️ `closed` 與 `normal` 是**兩件相反的事**：沙頭角現在就回傳「未開放」。
+ *    把它當成「暢通」渲染，比不顯示更糟。
+ */
+export type QueueLevel = "normal" | "busy" | "veryBusy" | "maintenance" | "closed";
+
+/**
+ * 一個深港口岸。
+ * ⚠️ 只裝**結構**（方式鍵、時刻）；面向使用者的文案由前端按語言渲染。
+ * `hours` 是例外：時刻是數字，三語相同，故不入譯文疊層。
+ */
+export interface BorderData {
+  /** 穩定識別碼 —— 譯文疊層以此為鍵。 */
+  id: string;
+  /** 香港入境處公開數據的管制站代碼；無實時數據者為 null（如高鐵西九龍）。 */
+  liveCode: string | null;
+  nameHk: string;
+  nameSz?: string;
+  modes: BorderMode[];
+  hours: string;
+  hkAccess: string;
+  szAccess: string;
+  note: string;
+  tip?: string;
+}
+
+/** 口岸卡：靜態口岸資料 + 實時排隊等級（取不到資料時為 null，前端不顯示徽章）。 */
+export interface BorderCardData {
+  borders: BorderData[];
+  queue: Record<string, QueueLevel> | null;
+}
+
 /**
  * 聊天消息里的卡片 —— 可辨识联合（discriminated union）。
  * 卡片类型名用**领域词**（見 CONTEXT.md），不用實作詞：
@@ -113,6 +149,7 @@ export type Card =
   | { type: "weather"; data: WeatherData }
   | { type: "transportDeals"; data: PricingData }
   | { type: "foodList"; data: FoodData[] }
-  | { type: "dealList"; data: DealData[] };
+  | { type: "dealList"; data: DealData[] }
+  | { type: "border"; data: BorderCardData };
 
 export type CardType = Card["type"];

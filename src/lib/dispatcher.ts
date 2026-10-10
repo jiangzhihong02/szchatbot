@@ -4,6 +4,8 @@ import { featuredFoods } from "./data/foods";
 import { getWeather } from "./weather";
 import { buildPricingPlan } from "./pricing";
 import { fetchAllDeals } from "./sources";
+import { BORDERS } from "./data/borders";
+import { getQueueLevels } from "./border-live";
 import { matchIntent } from "./intents";
 import type { IntentKey } from "./intents";
 import type { DispatchOptions, DispatchResult } from "./dispatch-contract";
@@ -53,6 +55,10 @@ export async function buildCards(intent: IntentKey, opts: DispatchOptions = {}):
 
     case "deals":
       return [{ type: "dealList", data: await fetchAllDeals() }];
+
+    case "border":
+      // 實時排隊取不到就只回 null，前端少一個徽章；口岸本身的靜態資料照常顯示。
+      return [{ type: "border", data: { borders: BORDERS, queue: await getQueueLevels() } }];
   }
 }
 

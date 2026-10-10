@@ -17,6 +17,15 @@ export type { IntentKey, PresetButton } from "./presets";
  * 按钮自身的 label（三语）由 `allLabels` 併入，故不在此重複。
  */
 export const KEYWORDS: Record<IntentKey, string[]> = {
+  // ⚠️ 只收「口岸」相關的詞，**不收裸地名**（羅湖／福田）：那些也是食店與路線的區名，
+  //    收了會讓「羅湖有咩好食」被判成口岸問題。地名一律寫成「XX口岸」。
+  border: [
+    "口岸", "過關", "过关", "通關", "通关", "過境", "过境", "邊境", "边境", "關口", "关口",
+    "點過關", "点过关", "邊個口岸", "哪个口岸",
+    "落馬洲", "落马洲", "福田口岸", "深圳灣口岸", "深圳湾口岸", "蓮塘口岸", "莲塘口岸",
+    "香園圍", "香园围", "文錦渡口岸", "文锦渡口岸", "羅湖口岸", "罗湖口岸",
+    "border", "checkpoint", "crossing", "immigration",
+  ],
   food: ["深圳美食", "有咩好食", "食乜好", "美食推薦", "美食推荐", "美食", "food", "eat", "restaurant", "hungry"],
   day: ["一日遊", "一日游", "規劃行程", "规划行程", "路線", "路线", "行程", "route", "day trip", "itinerary"],
   family: ["親子遊", "亲子游", "親子", "亲子", "帶小孩", "带小孩", "小朋友", "family", "kids", "children"],

@@ -60,8 +60,18 @@ async function main() {
     ["Family route", "family"],
     ["route", "day"],
     ["Deals + transport", "transportDeals"],
+    ["口岸", "border"],
+    ["過關", "border"],
+    ["落馬洲", "border"],
+    ["點過關", "border"],
+    ["福田口岸", "border"],
+    ["Border crossings", "border"],
   ];
   for (const [text, want] of AMBIGUOUS) check(`歧義「${text}」→ ${want}`, matchIntent(text) === want);
+
+  // 裸地名**刻意不列為口岸關鍵詞**：羅湖／福田同時是食店與路線的區名。
+  // 若哪天有人「順手」把「羅湖」加進 KEYWORDS，這條會紅。
+  check('"羅湖有咩好食" → food（裸地名不搶口岸）', matchIntent("羅湖有咩好食") === "food");
 
   // ── 2. 无冲突规则（契约）：優惠 類歸 🎫，交通 類歸 💰 ──
   check('無衝突：「優惠」→ deals', matchIntent("優惠") === "deals");
@@ -74,7 +84,7 @@ async function main() {
   }
 
   // ── 4. 按鈕數量與關鍵詞表完整性 ──
-  check("按鈕數 = 6", PRESET_BUTTONS.length === 6);
+  check("按鈕數 = 7", PRESET_BUTTONS.length === 7);
   check(
     "KEYWORDS 覆盖全部意图",
     PRESET_BUTTONS.every((b) => Array.isArray(KEYWORDS[b.key]) && KEYWORDS[b.key].length > 0)

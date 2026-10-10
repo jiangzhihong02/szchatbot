@@ -1,6 +1,6 @@
 import type { Locale } from "./config";
 import type { IntentKey } from "../presets";
-import type { TransportKey, DiscountKey } from "../types";
+import type { TransportKey, DiscountKey, BorderMode, QueueLevel } from "../types";
 
 /**
  * UI 文案（票 11）。**三語各自撰寫**，不直譯 —— 每語用母語的自然口吻。
@@ -55,6 +55,15 @@ export interface Messages {
     mustTry: string;
     dealTitle: string;
     source: string;
+    borderTitle: string;
+    /** 實時徽章的標籤前綴 —— 標明**方向**，否則旅人會以為那是自己要走的那條隊。 */
+    borderLive: string;
+    borderHkSide: string;
+    borderSzSide: string;
+    /** 資料來源與更新頻率（誠實標示：這是香港側的數據）。 */
+    borderUpdated: string;
+    borderDisclaimer: string;
+    borderPayment: string;
   };
   /** 錯誤與降級。`llm*` 供伺服器端 /api/chat 用。 */
   errors: {
@@ -72,6 +81,8 @@ export interface Messages {
     paymentTips: string[];
     weatherAdvice: { rain: string; hot: string; cold: string; ok: string };
     estimateNote: string;
+    borderMode: Record<BorderMode, string>;
+    queue: Record<QueueLevel, string>;
   };
   localeLabel: string;
 }
@@ -97,6 +108,7 @@ export const messages: Record<Locale, Messages> = {
       startFail: "未能啟動語音辨識，請再試一次。",
     },
     presets: {
+      border: { label: "口岸通關", hint: "邊個口岸最順" },
       food: { label: "找美食", hint: "3–4 家精選" },
       day: { label: "一日遊路線", hint: "主推 + 換一條" },
       family: { label: "親子路線", hint: "帶小孩首選" },
@@ -133,6 +145,14 @@ export const messages: Record<Locale, Messages> = {
       mustTry: "必試",
       dealTitle: "深圳優惠活動",
       source: "來源",
+      borderTitle: "深港口岸",
+      borderLive: "香港出境",
+      borderHkSide: "香港側",
+      borderSzSide: "深圳側",
+      borderUpdated: "香港入境處數據（只計港方出境手續），每 15 分鐘更新",
+      borderDisclaimer: "口岸時間與接駁會變動，出發前請以官方公布為準。",
+      borderPayment:
+        "八達通唔可以直接坐深圳地鐵。可用 AlipayHK 跨境乘車碼，或者買「深港互通行」；2026 年 9 月起閘機亦收銀聯／Visa／Mastercard。",
     },
     errors: {
       generic: "抱歉，暫時有啲問題，請再試一次。",
@@ -184,6 +204,14 @@ export const messages: Record<Locale, Messages> = {
         ok: "天氣舒適，適合戶外行程。",
       },
       estimateNote: "以上為示例規則與大致費用，實際以商戶 / 景點當日公告為準。",
+      borderMode: { rail: "鐵路", coach: "跨境巴士", car: "私家車", walk: "步行", hsr: "高鐵" },
+      queue: {
+        normal: "正常",
+        busy: "繁忙",
+        veryBusy: "非常繁忙",
+        maintenance: "維護中",
+        closed: "未開放",
+      },
     },
     localeLabel: "語言",
   },
@@ -208,6 +236,7 @@ export const messages: Record<Locale, Messages> = {
       startFail: "没能启动语音识别，请再试一次。",
     },
     presets: {
+      border: { label: "口岸通关", hint: "哪个口岸最顺" },
       food: { label: "找美食", hint: "3–4 家精选" },
       day: { label: "一日游路线", hint: "主推 + 换一条" },
       family: { label: "亲子路线", hint: "带小孩首选" },
@@ -244,6 +273,14 @@ export const messages: Record<Locale, Messages> = {
       mustTry: "必试",
       dealTitle: "深圳优惠活动",
       source: "来源",
+      borderTitle: "深港口岸",
+      borderLive: "香港出境",
+      borderHkSide: "香港侧",
+      borderSzSide: "深圳侧",
+      borderUpdated: "香港入境处数据（只计港方出境手续），每 15 分钟更新",
+      borderDisclaimer: "口岸时间与接驳会变动，出发前请以官方公布为准。",
+      borderPayment:
+        "八达通不能直接坐深圳地铁。可用 AlipayHK 跨境乘车码，或者买「深港互通行」；2026 年 9 月起闸机也收银联／Visa／Mastercard。",
     },
     errors: {
       generic: "抱歉，出了点问题，请再试一次。",
@@ -295,6 +332,14 @@ export const messages: Record<Locale, Messages> = {
         ok: "天气舒适，适合户外行程。",
       },
       estimateNote: "以上为示例规则与大致费用，实际以商户 / 景点当日公告为准。",
+      borderMode: { rail: "铁路", coach: "跨境巴士", car: "私家车", walk: "步行", hsr: "高铁" },
+      queue: {
+        normal: "正常",
+        busy: "繁忙",
+        veryBusy: "非常繁忙",
+        maintenance: "维护中",
+        closed: "未开放",
+      },
     },
     localeLabel: "语言",
   },
@@ -320,6 +365,7 @@ export const messages: Record<Locale, Messages> = {
       startFail: "Couldn't start speech recognition. Please try again.",
     },
     presets: {
+      border: { label: "Border crossings", hint: "Which one to use" },
       food: { label: "Find food", hint: "3–4 picks" },
       day: { label: "Day route", hint: "Top pick + next" },
       family: { label: "Family route", hint: "With kids" },
@@ -356,6 +402,14 @@ export const messages: Record<Locale, Messages> = {
       mustTry: "Must try",
       dealTitle: "Shenzhen deals",
       source: "Source",
+      borderTitle: "Shenzhen–Hong Kong crossings",
+      borderLive: "HK departure",
+      borderHkSide: "Hong Kong side",
+      borderSzSide: "Shenzhen side",
+      borderUpdated: "HK Immigration data (HK-side departure clearance only), updated every 15 minutes",
+      borderDisclaimer: "Hours and connections change — check the official notice before you travel.",
+      borderPayment:
+        "Octopus doesn't work on the Shenzhen metro. Use the AlipayHK cross-border ride code, or get a Shenzhen–HK Interoperable Card; since September 2026 the gates also take UnionPay / Visa / Mastercard.",
     },
     errors: {
       generic: "Sorry, something went wrong — please try again.",
@@ -408,6 +462,20 @@ export const messages: Record<Locale, Messages> = {
         ok: "Comfortable weather — good for being outdoors.",
       },
       estimateNote: "These are sample rules and rough costs; the merchant or attraction's notice on the day is what counts.",
+      borderMode: {
+        rail: "Rail",
+        coach: "Cross-border coach",
+        car: "Private car",
+        walk: "On foot",
+        hsr: "High-speed rail",
+      },
+      queue: {
+        normal: "Clear",
+        busy: "Busy",
+        veryBusy: "Very busy",
+        maintenance: "Maintenance",
+        closed: "Not open",
+      },
     },
     localeLabel: "Language",
   },

@@ -1,8 +1,9 @@
 import type { Locale } from "./config";
-import type { RouteData, FoodData, DealData } from "../types";
+import type { RouteData, FoodData, DealData, BorderData } from "../types";
 import { ROUTES } from "../data/routes";
 import { FOODS } from "../data/foods";
 import { DEALS } from "../data/deals";
+import { BORDERS } from "../data/borders";
 import { CONTENT_I18N } from "../data/i18n-generated";
 
 /**
@@ -21,11 +22,14 @@ export const kRoute = (id: string, field: string) => `route.${id}.${field}`;
 export const kStop = (id: string, i: number, field: string) => `route.${id}.stop${i}.${field}`;
 export const kFood = (id: string, field: string) => `food.${id}.${field}`;
 export const kDeal = (id: string, field: string) => `deal.${id}.${field}`;
+export const kBorder = (id: string, field: string) => `border.${id}.${field}`;
 
 export const ROUTE_FIELDS = ["title", "theme", "area", "bestFor", "tips"] as const;
 export const STOP_FIELDS = ["name", "area", "desc"] as const;
 export const FOOD_FIELDS = ["name", "area", "category", "mustTry"] as const;
 export const DEAL_FIELDS = ["title", "merchant", "area", "summary", "validUntil", "sourceName"] as const;
+/** 口岸的可譯欄位。`hours` **不在**其中：時刻是數字，三語相同，沒必要翻。 */
+export const BORDER_FIELDS = ["nameHk", "nameSz", "hkAccess", "szAccess", "note", "tip"] as const;
 
 /** 正本裡所有**應有譯文**的鍵（順序固定，供生成與校驗共用）。 */
 export function allContentKeys(): string[] {
@@ -36,6 +40,7 @@ export function allContentKeys(): string[] {
   }
   FOODS.forEach((f) => FOOD_FIELDS.forEach((field) => keys.push(kFood(f.id, field))));
   for (const d of DEALS) DEAL_FIELDS.forEach((f) => keys.push(kDeal(d.id, f)));
+  for (const b of BORDERS) BORDER_FIELDS.forEach((f) => keys.push(kBorder(b.id, f)));
   return keys;
 }
 
@@ -87,5 +92,18 @@ export function localizeDeal(d: DealData, locale: Locale): DealData {
     summary: tr(kDeal(d.id, "summary"), locale, d.summary),
     validUntil: d.validUntil ? tr(kDeal(d.id, "validUntil"), locale, d.validUntil) : d.validUntil,
     sourceName: tr(kDeal(d.id, "sourceName"), locale, d.sourceName),
+  };
+}
+
+export function localizeBorder(b: BorderData, locale: Locale): BorderData {
+  if (locale === "zh-Hant") return b;
+  return {
+    ...b,
+    nameHk: tr(kBorder(b.id, "nameHk"), locale, b.nameHk),
+    nameSz: b.nameSz ? tr(kBorder(b.id, "nameSz"), locale, b.nameSz) : b.nameSz,
+    hkAccess: tr(kBorder(b.id, "hkAccess"), locale, b.hkAccess),
+    szAccess: tr(kBorder(b.id, "szAccess"), locale, b.szAccess),
+    note: tr(kBorder(b.id, "note"), locale, b.note),
+    tip: b.tip ? tr(kBorder(b.id, "tip"), locale, b.tip) : b.tip,
   };
 }

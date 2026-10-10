@@ -452,4 +452,108 @@ export const CONTENT_I18N: Record<string, { "zh-Hans": string; en: string }> = {
   },
   "deal.d-tourist-bus.validUntil": { "zh-Hans": "常设", en: "Permanent" },
   "deal.d-tourist-bus.sourceName": { "zh-Hans": "深圳巴士集团公开票价", en: "Shenzhen Bus Group published fares" },
+
+  // ── 口岸 borders（票 12）────────────────────────────────
+  // `hours` 刻意不在疊層裡：時刻是數字，三語完全相同，翻了只是多一處會漂移的地方。
+  "border.lo-wu.nameHk": { "zh-Hans": "罗湖", en: "Lo Wu（罗湖）" },
+  "border.lo-wu.nameSz": { "zh-Hans": "罗湖", en: "Luohu（罗湖）" },
+  "border.lo-wu.hkAccess": { "zh-Hans": "东铁线 罗湖站（终点站）", en: "East Rail Line, Lo Wu station (terminus)" },
+  "border.lo-wu.szAccess": { "zh-Hans": "深圳地铁 1 号线 罗湖站", en: "Shenzhen Metro Line 1, Luohu station" },
+  "border.lo-wu.note": { "zh-Hans": "最方便转地铁，人流最大", en: "Easiest metro connection — and the busiest" },
+  "border.lo-wu.tip": {
+    "zh-Hans": "繁忙时段排队较长；假日建议避开早上 7:30–9:30",
+    en: "Queues are long at peak; on holidays avoid 07:30–09:30",
+  },
+
+  "border.futian.nameHk": { "zh-Hans": "落马洲支线", en: "Lok Ma Chau Spur Line（落马洲支线）" },
+  "border.futian.nameSz": { "zh-Hans": "福田口岸", en: "Futian Checkpoint（福田口岸）" },
+  "border.futian.hkAccess": {
+    "zh-Hans": "东铁线 落马洲站（须在上水或大围转乘支线）",
+    en: "East Rail Line, Lok Ma Chau station (change to the Spur Line at Sheung Shui or Tai Wai)",
+  },
+  "border.futian.szAccess": {
+    "zh-Hans": "深圳地铁 4 号线／10 号线 福田口岸站",
+    en: "Shenzhen Metro Line 4 / Line 10, Futian Checkpoint station",
+  },
+  "border.futian.note": {
+    "zh-Hans": "直入福田 CBD，港人最常用",
+    en: "Straight into Futian CBD — the most popular crossing with Hongkongers",
+  },
+  "border.futian.tip": {
+    "zh-Hans": "东铁线须转乘支线；22:30 收关，夜返要改走其他口岸",
+    en: "You must change to the Spur Line; it closes at 22:30, so late returns need another crossing",
+  },
+
+  "border.shenzhen-bay.nameHk": { "zh-Hans": "深圳湾", en: "Shenzhen Bay（深圳湾）" },
+  "border.shenzhen-bay.nameSz": { "zh-Hans": "深圳湾", en: "Shenzhen Bay（深圳湾）" },
+  "border.shenzhen-bay.hkAccess": {
+    "zh-Hans": "跨境巴士或私家车（香港侧无铁路）",
+    en: "Cross-border coach or private car (no rail on the Hong Kong side)",
+  },
+  "border.shenzhen-bay.szAccess": {
+    "zh-Hans": "深圳地铁 13 号线 深圳湾口岸站",
+    en: "Shenzhen Metro Line 13, Shenzhen Bay Checkpoint station",
+  },
+  "border.shenzhen-bay.note": {
+    "zh-Hans": "香港侧无铁路，靠巴士或私家车",
+    en: "No rail on the Hong Kong side — coach or private car",
+  },
+  "border.shenzhen-bay.tip": {
+    "zh-Hans": "旅客通道只到午夜（24 小时的是货检）；私家车须办一次性配额",
+    en: "Passenger clearance ends at midnight (only freight runs 24h); private cars need a one-off quota",
+  },
+
+  "border.liantang.nameHk": { "zh-Hans": "香园围", en: "Heung Yuen Wai（香园围）" },
+  "border.liantang.nameSz": { "zh-Hans": "莲塘", en: "Liantang（莲塘）" },
+  "border.liantang.hkAccess": {
+    "zh-Hans": "跨境巴士、私家车或步行",
+    en: "Cross-border coach, private car, or on foot",
+  },
+  "border.liantang.szAccess": {
+    "zh-Hans": "深圳地铁 2 号线 莲塘口岸站",
+    en: "Shenzhen Metro Line 2, Liantang Checkpoint station",
+  },
+  "border.liantang.note": {
+    "zh-Hans": "最新、客流最少，可步行过关",
+    en: "Newest and quietest — you can cross on foot",
+  },
+  "border.liantang.tip": {
+    "zh-Hans": "客流最少，适合不想排队；但香港侧公共交通班次较疏",
+    en: "Fewest people, good if you hate queues — but HK-side public transport runs less often",
+  },
+
+  "border.man-kam-to.nameHk": { "zh-Hans": "文锦渡", en: "Man Kam To（文锦渡）" },
+  "border.man-kam-to.nameSz": { "zh-Hans": "文锦渡", en: "Man Kam To（文锦渡）" },
+  "border.man-kam-to.hkAccess": { "zh-Hans": "跨境巴士", en: "Cross-border coach" },
+  "border.man-kam-to.szAccess": { "zh-Hans": "深圳地铁 9 号线 文锦站", en: "Shenzhen Metro Line 9, Wenjin station" },
+  "border.man-kam-to.note": { "zh-Hans": "人最少、通关最快", en: "Fewest people, fastest clearance" },
+  "border.man-kam-to.tip": {
+    "zh-Hans": "车位极少（约 30 个），不建议自驾前往",
+    en: "Very few parking spaces (about 30) — don't drive there",
+  },
+
+  "border.west-kowloon.nameHk": {
+    "zh-Hans": "高铁西九龙站",
+    en: "West Kowloon High Speed Rail Station（高铁西九龙站）",
+  },
+  "border.west-kowloon.nameSz": {
+    "zh-Hans": "深圳北 / 福田（高铁站）",
+    en: "Shenzhen North / Futian (HSR stations)",
+  },
+  "border.west-kowloon.hkAccess": {
+    "zh-Hans": "港铁 屯马线 柯士甸站／东涌线 九龙站",
+    en: "MTR Tuen Ma Line, Austin station / Tung Chung Line, Kowloon station",
+  },
+  "border.west-kowloon.szAccess": {
+    "zh-Hans": "高铁直达 福田（约 14 分钟）或 深圳北（约 17 分钟）",
+    en: "Direct HSR to Futian (about 14 min) or Shenzhen North (about 17 min)",
+  },
+  "border.west-kowloon.note": {
+    "zh-Hans": "坐高铁，最快但须购票",
+    en: "High-speed rail — fastest, but you must book",
+  },
+  "border.west-kowloon.tip": {
+    "zh-Hans": "车站开放 06:00–24:00；实名制须预先购票，开车前 30 分钟停止验票",
+    en: "Station opens 06:00–24:00; real-name tickets must be booked ahead, and check-in closes 30 minutes before departure",
+  },
 };

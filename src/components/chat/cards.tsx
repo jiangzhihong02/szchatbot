@@ -1,9 +1,18 @@
 "use client";
 
-import type { Card, RouteCardData, WeatherData, PricingData, FoodData, DealData } from "@/lib/types";
+import type {
+  Card,
+  RouteCardData,
+  WeatherData,
+  PricingData,
+  FoodData,
+  DealData,
+  BorderCardData,
+  QueueLevel,
+} from "@/lib/types";
 import { fmt } from "@/lib/i18n/format";
 import { useI18n } from "@/components/i18n/LocaleProvider";
-import { localizeRoute, localizeFood, localizeDeal } from "@/lib/i18n/content";
+import { localizeRoute, localizeFood, localizeDeal, localizeBorder } from "@/lib/i18n/content";
 import { weatherTerm, windTerm, adviceKeyFor } from "@/lib/i18n/weather-text";
 
 /**
@@ -202,6 +211,66 @@ function DealListCard({ data }: { data: DealData[] }) {
   );
 }
 
+/** 排隊徽章的配色。`closed` 與 `normal` 顏色必須相反——一個是「唔使排」，一個是「冇開」。 */
+const QUEUE_STYLE: Record<QueueLevel, string> = {
+  normal: "bg-emerald-100 text-emerald-700",
+  busy: "bg-amber-100 text-amber-700",
+  veryBusy: "bg-rose-100 text-rose-700",
+  maintenance: "bg-slate-200 text-slate-600",
+  closed: "bg-slate-200 text-slate-500",
+};
+
+function BorderCard({ data }: { data: BorderCardData }) {
+  const { m, locale } = useI18n();
+  const borders = data.borders.map((b) => localizeBorder(b, locale));
+  return (
+    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
+      <p className="text-sm font-semibold text-slate-900">🛂 {m.cards.borderTitle}</p>
+
+      <div className="mt-2 space-y-3">
+        {borders.map((b) => {
+          // liveCode 為 null（如西九龍）或實時資料取不到 → 就沒有徽章，其餘照常顯示。
+          const level = data.queue?.[b.liveCode ?? ""];
+          return (
+            <div key={b.id} className="rounded-xl border border-slate-100 p-3">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <p className="text-sm font-medium text-slate-900">
+                  {b.nameHk}
+                  {b.nameSz && b.nameSz !== b.nameHk && <span className="text-slate-400"> ⇄ {b.nameSz}</span>}
+                </p>
+                {level && (
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${QUEUE_STYLE[level]}`}>
+                    {m.cards.borderLive}：{m.engine.queue[level]}
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-0.5 text-xs text-slate-400">
+                {b.modes.map((k) => m.engine.borderMode[k]).join(" · ")} · {b.hours}
+              </p>
+              <p className="mt-1 text-xs text-slate-600">
+                <span className="text-slate-400">{m.cards.borderHkSide}：</span>
+                {b.hkAccess}
+              </p>
+              <p className="text-xs text-slate-600">
+                <span className="text-slate-400">{m.cards.borderSzSide}：</span>
+                {b.szAccess}
+              </p>
+              <p className="mt-1 text-xs font-medium text-teal-700">{b.note}</p>
+              {b.tip && <p className="mt-1 text-[10px] text-amber-700">💡 {b.tip}</p>}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-3 rounded-xl bg-teal-50 px-3 py-2 text-xs text-teal-900/80">💳 {m.cards.borderPayment}</p>
+      <p className="mt-2 text-[10px] text-slate-400">
+        {m.cards.borderUpdated} · {m.cards.borderDisclaimer}
+      </p>
+    </div>
+  );
+}
+
 export function CardView({ card, onCycleRoute }: { card: Card; onCycleRoute?: () => void }) {
   switch (card.type) {
     case "route":
@@ -214,5 +283,7 @@ export function CardView({ card, onCycleRoute }: { card: Card; onCycleRoute?: ()
       return <FoodListCard data={card.data} />;
     case "dealList":
       return <DealListCard data={card.data} />;
+    case "border":
+      return <BorderCard data={card.data} />;
   }
 }
