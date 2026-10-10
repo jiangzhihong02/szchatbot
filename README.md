@@ -40,10 +40,10 @@ cp .env.example .env.local   # 填入下方環境變數
 npm run dev                  # http://localhost:3000
 ```
 
-冒煙測試（規則分發器，81 項斷言）：
+冒煙測試（規則分發器 + 譯文覆蓋 + 同源閘，共 181 項斷言）：
 
 ```bash
-npx tsx scripts/check-dispatcher.ts
+npm run check
 ```
 
 ## 環境變數
@@ -56,6 +56,21 @@ npx tsx scripts/check-dispatcher.ts
 | `AMAP_KEY` | 是 | 高德開放平台「**Web 服務**」key（天氣 + 路線規劃）。未設時天氣回退 mock、地圖 404。 |
 
 > `APP_` 前綴是刻意的：避免繼承 shell 中 Claude Code 的 `ANTHROPIC_*` 環境（那會指向第三方代理）。
+
+## 安全
+
+**金鑰只存在兩處**：本機 `.env.local`（`.gitignore` 已忽略，永不提交）與 Vercel 的環境變數。兩把 key 都沒有 `NEXT_PUBLIC_` 前綴，所以不會被 inline 進瀏覽器的那份 JS；`/api/route-map` 是唯一把高德 key 帶出去的地方，且只從伺服器端帶。
+
+**`/api/chat` 是公網上的付費代理**：它拿伺服器端的金鑰去呼叫 LLM，每問一次花一次錢，而網址是公開的。它有一道同源閘（`src/lib/same-origin.ts`），擋掉非本網站頁面發起的請求——但**擋不住手動補上標頭的人**。
+
+所以真正的底線是這兩件事，缺一不可：
+
+1. **在 LLM 後台給金鑰設用量／餘額上限。** 把最大損失釘死在一個你願意承擔的數字上——這是唯一不依賴任何程式碼的兜底。
+2. **在 Vercel Project Settings → Firewall 加一條限流規則。** Hobby 方案含 1 條（100 萬請求額度），不必寫程式、不必引 KV。
+
+另外建議把 Vercel 的環境變數標為 **Secret**（write-only，存進去就讀不回來）。注意：**改了環境變數只對新部署生效**，改完要重新部署一次。
+
+**這個倉庫是公開的。** GitHub 對公開倉庫免費提供 secret scanning 與 push protection（私有倉庫要付費的 GitHub Secret Protection），開啟路徑：Settings → Security and quality。
 
 ## 部署到 Vercel
 

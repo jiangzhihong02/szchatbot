@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { systemPromptFor } from "@/lib/system-prompt";
 import { resolveLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
+import { isSameOrigin, forbidden } from "@/lib/same-origin";
 
 /**
  * 自由問答 API（票 04）。
@@ -46,6 +47,9 @@ function textStream(text: string): Response {
 }
 
 export async function POST(req: Request): Promise<Response> {
+  // 這是**花錢的**端點：只服務本網站自己的頁面。理由、界線與它的不足見 lib/same-origin。
+  if (!isSameOrigin(req.headers)) return forbidden();
+
   let turns: Turn[];
   let localeRaw: string | undefined;
   try {
