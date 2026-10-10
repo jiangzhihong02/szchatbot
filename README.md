@@ -4,6 +4,7 @@
 
 - **對話優先的雙端界面**：手機用對話流，桌面用分欄指令台（按 User-Agent 分發，見 [`docs/adr/0002`](docs/adr/0002-device-based-layout-routing.md)）。
 - **錢與規則走確定性引擎**，LLM 只負責自由問答（見 [`docs/adr/0001`](docs/adr/0001-deterministic-rules-over-llm.md)）。
+- **事實只有一份來源**：LLM 的【口岸】段落由 `src/lib/data/borders.ts` 生成，不手抄（見 [`docs/adr/0004`](docs/adr/0004-single-source-of-facts.md)）。
 - 詞彙定義見 [`CONTEXT.md`](CONTEXT.md)；規劃地圖與決策見 [`.scratch/shenzhen-travel-assistant/map.md`](.scratch/shenzhen-travel-assistant/map.md)。
 
 ## 功能
