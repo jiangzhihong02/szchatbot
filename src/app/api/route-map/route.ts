@@ -5,8 +5,9 @@ import { fetchStaticMapPng } from "@/lib/amap";
 /**
  * 路線地圖圖片代理（票 10）。
  * 前端用 `<img src="/api/route-map?routeId=xxx">`。
- * 本路由是**唯一**把高德 key 帶出去的地方（透過 `amap.fetchStaticMapPng`），
- * 而該模組有 `server-only`，所以 key 不可能被打進瀏覽器。
+ * 帶 key 的取圖收在 `amap.fetchStaticMapPng()`，那是**唯一帶 key 的出口**；
+ * `amap.ts` 另有載入期斷言（被客戶端模組拖進 bundle 會立刻炸），
+ * 且 `AMAP_KEY` 沒有 `NEXT_PUBLIC_` 前綴，本來就不會被 inline。
  */
 export async function GET(req: Request): Promise<Response> {
   const id = new URL(req.url).searchParams.get("routeId");

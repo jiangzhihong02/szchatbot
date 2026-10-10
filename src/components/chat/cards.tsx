@@ -230,7 +230,7 @@ function BorderCard({ data }: { data: BorderCardData }) {
       <div className="mt-2 space-y-3">
         {borders.map((b) => {
           // liveCode 為 null（如西九龍）或實時資料取不到 → 就沒有徽章，其餘照常顯示。
-          const level = data.queue?.[b.liveCode ?? ""];
+          const level = b.liveCode ? data.queue?.[b.liveCode] : undefined;
           return (
             <div key={b.id} className="rounded-xl border border-slate-100 p-3">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">

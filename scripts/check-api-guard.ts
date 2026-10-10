@@ -1,17 +1,9 @@
 // 冒烟检查：/api 的同源閘（lib/same-origin）。运行：npx tsx scripts/check-api-guard.ts
 // 這道閘是「付費端點別被外人白吃」的唯一防線，所以每個分支都要有斷言釘住。
 import { isSameOrigin } from "../src/lib/same-origin";
+import { makeChecker } from "./_check";
 
-let passed = 0;
-const failures: string[] = [];
-
-function check(label: string, ok: boolean) {
-  if (ok) {
-    passed++;
-  } else {
-    failures.push(label);
-  }
-}
+const { check, report } = makeChecker();
 
 /** 造一組請求標頭。 */
 const H = (init: Record<string, string>) => new Headers(init);
@@ -69,12 +61,7 @@ async function main() {
   check("本機開發 → 放行", isSameOrigin(H({ origin: "http://localhost:3000", host: "localhost:3000" })));
   check("埠號不同 → 拒", !isSameOrigin(H({ origin: "http://localhost:3001", host: "localhost:3000" })));
 
-  console.log(`\n✅ 通過 ${passed} 項`);
-  if (failures.length) {
-    console.log(`❌ 失敗 ${failures.length} 項：`);
-    for (const f of failures) console.log(`   - ${f}`);
-  }
-  process.exit(failures.length === 0 ? 0 : 1);
+  report();
 }
 
 main();

@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import type { QueueLevel } from "./types";
+import type { QueueLevel, BorderLiveCode } from "./types";
 import { mapQueueLevels } from "./border-live-core";
 import type { ImmdQueueJson } from "./border-live-core";
 
@@ -21,7 +21,7 @@ import type { ImmdQueueJson } from "./border-live-core";
 const IMMD_QUEUE_URL = "https://secure1.info.gov.hk/immd/mobileapps/2bb9ae17/data/CPQueueTimeR.json";
 
 /** 香港入境處公開數據每 15 分鐘更新，故快取 15 分鐘。無資料 → null。 */
-export async function getQueueLevels(): Promise<Record<string, QueueLevel> | null> {
+export async function getQueueLevels(): Promise<Partial<Record<BorderLiveCode, QueueLevel>> | null> {
   "use cache";
   cacheLife({ revalidate: 900 });
 

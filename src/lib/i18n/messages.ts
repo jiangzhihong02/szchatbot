@@ -152,7 +152,7 @@ export const messages: Record<Locale, Messages> = {
       borderUpdated: "香港入境處數據（只計港方出境手續），每 15 分鐘更新",
       borderDisclaimer: "口岸時間與接駁會變動，出發前請以官方公布為準。",
       borderPayment:
-        "八達通唔可以直接坐深圳地鐵。可用 AlipayHK 跨境乘車碼，或者買「深港互通行」；2026 年 9 月起閘機亦收銀聯／Visa／Mastercard。",
+        "八達通唔可以直接坐深圳地鐵。可用 AlipayHK 跨境乘車碼，或者買「深港互通行」卡（一卡兩錢包）。",
     },
     errors: {
       generic: "抱歉，暫時有啲問題，請再試一次。",
@@ -280,7 +280,7 @@ export const messages: Record<Locale, Messages> = {
       borderUpdated: "香港入境处数据（只计港方出境手续），每 15 分钟更新",
       borderDisclaimer: "口岸时间与接驳会变动，出发前请以官方公布为准。",
       borderPayment:
-        "八达通不能直接坐深圳地铁。可用 AlipayHK 跨境乘车码，或者买「深港互通行」；2026 年 9 月起闸机也收银联／Visa／Mastercard。",
+        "八达通不能直接坐深圳地铁。可用 AlipayHK 跨境乘车码，或者买「深港互通行」卡（一卡两钱包）。",
     },
     errors: {
       generic: "抱歉，出了点问题，请再试一次。",
@@ -409,7 +409,7 @@ export const messages: Record<Locale, Messages> = {
       borderUpdated: "HK Immigration data (HK-side departure clearance only), updated every 15 minutes",
       borderDisclaimer: "Hours and connections change — check the official notice before you travel.",
       borderPayment:
-        "Octopus doesn't work on the Shenzhen metro. Use the AlipayHK cross-border ride code, or get a Shenzhen–HK Interoperable Card; since September 2026 the gates also take UnionPay / Visa / Mastercard.",
+        "Octopus doesn't work on the Shenzhen metro. Use the AlipayHK cross-border ride code, or get a Shenzhen–HK Interoperable Card (one card, two wallets).",
     },
     errors: {
       generic: "Sorry, something went wrong — please try again.",

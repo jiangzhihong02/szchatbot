@@ -1,7 +1,7 @@
 name: 口岸資料變更監看
 
 # 只做一件事：官方管制站頁面變了，就開一個 PR 讓人過目。
-# 刻意**不改** src/lib/data/borders.ts —— 那一步留給人（理由見 src/lib/checkpoint-watch.ts）。
+# 刻意**不改** src/lib/data/borders.ts —— 那一步留給人（理由見 src/lib/border-watch.ts）。
 #
 # ⚠️ 兩個要知道的坑：
 #   1. GitHub 對「公開倉庫」的排程工作流有規定：**倉庫連續 60 天沒有活動就自動停用**。
@@ -44,7 +44,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPORT_PATH: ${{ runner.temp }}/border-watch-report.md
         run: |
-          if git diff --quiet -- .github/border-watch/stations.json; then
+          if git diff --quiet -- .github/border-watch/borders.json; then
             echo "快照無變更，結束。"
             exit 0
           fi
@@ -62,7 +62,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add .github/border-watch/stations.json
+          git add .github/border-watch/borders.json
           git commit -m "chore(border-watch): 官方管制站頁面有變動"
           git push -u origin "$BRANCH"
 

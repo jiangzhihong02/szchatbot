@@ -114,6 +114,15 @@ export type BorderMode = "rail" | "coach" | "car" | "walk" | "hsr";
 export type QueueLevel = "normal" | "busy" | "veryBusy" | "maintenance" | "closed";
 
 /**
+ * 香港入境處公開數據實際提供的管制站代碼。
+ * 放在 `types.ts` 是因為它是**共享詞彙**：`BorderData` 與排隊 adapter 都要用它，
+ * 而把它拆去 runtime 模組會造成循環 import。
+ * ⚠️ 這也讓「代碼必須是真的」從測試斷言升級成**型別**——打錯字編譯就過不了。
+ */
+export const BORDER_LIVE_CODES = ["HYW", "HZM", "LMC", "LSC", "LWS", "MKT", "SBC", "STK"] as const;
+export type BorderLiveCode = (typeof BORDER_LIVE_CODES)[number];
+
+/**
  * 一個深港口岸。
  * ⚠️ 只裝**結構**（方式鍵、時刻）；面向使用者的文案由前端按語言渲染。
  * `hours` 是例外：時刻是數字，三語相同，故不入譯文疊層。
@@ -122,7 +131,7 @@ export interface BorderData {
   /** 穩定識別碼 —— 譯文疊層以此為鍵。 */
   id: string;
   /** 香港入境處公開數據的管制站代碼；無實時數據者為 null（如高鐵西九龍）。 */
-  liveCode: string | null;
+  liveCode: BorderLiveCode | null;
   nameHk: string;
   nameSz?: string;
   modes: BorderMode[];
@@ -136,7 +145,7 @@ export interface BorderData {
 /** 口岸卡：靜態口岸資料 + 實時排隊等級（取不到資料時為 null，前端不顯示徽章）。 */
 export interface BorderCardData {
   borders: BorderData[];
-  queue: Record<string, QueueLevel> | null;
+  queue: Partial<Record<BorderLiveCode, QueueLevel>> | null;
 }
 
 /**

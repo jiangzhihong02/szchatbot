@@ -1,5 +1,5 @@
 /**
- * 官方管制站頁面的**變更偵測** —— 純函式，不碰網路。
+ * 官方口岸頁面的**變更偵測** —— 純函式，不碰網路。
  *
  * ⚠️ 這裡刻意**不做時刻解析**。原本想「把官方頁的時刻轉成我們的正規形式再改寫
  *    `data/borders.ts`」，但真實頁面做不到可靠解析：
@@ -11,10 +11,13 @@
  * 所以退一步：**只偵測「哪個口岸的段落變了」**，並把新段落原樣交給人看。
  * 這條路不可能產出錯資料，因為它根本不產出資料。
  * 改 `borders.ts` 的動作留給人——成本是一行，而且有人過目。
+ *
+ * 命名一律用**口岸／border**（CONTEXT.md 的規範詞）；不用 `checkpoint`／`station`，
+ * 前者是 `_Avoid_` 的「檢查站」，後者會與路線的**站點（Stop）**撞車。
  */
 
-/** 表格文字 → 每個管制站的段落（站名 → 該站底下所有行，直到下一個編號站）。 */
-export function extractStations(tableText: string): Record<string, string> | null {
+/** 表格文字 → 每個口岸的段落（口岸名 → 該口岸底下所有行，直到下一個編號口岸）。 */
+export function extractBorders(tableText: string): Record<string, string> | null {
   const lines = tableText
     .split("\n")
     .map((s) => s.replace(/\s+/g, " ").trim())
@@ -25,7 +28,7 @@ export function extractStations(tableText: string): Record<string, string> | nul
   let buf: string[] = [];
 
   for (const line of lines) {
-    // 「N.站名」是段落分隔。官方頁固定用半角句點加編號。
+    // 「N.口岸名」是段落分隔。官方頁固定用半角句點加編號。
     const m = /^(\d{1,2})\s*[.．、]\s*(\S.*)$/.exec(line);
     if (m) {
       if (current) out[current] = buf.join("\n");
@@ -40,14 +43,14 @@ export function extractStations(tableText: string): Record<string, string> | nul
   return Object.keys(out).length ? out : null;
 }
 
-export interface StationDiff {
+export interface BorderDiff {
   added: string[];
   removed: string[];
   changed: string[];
 }
 
 /** 比對兩份快照。 */
-export function diffStations(prev: Record<string, string>, next: Record<string, string>): StationDiff {
+export function diffBorders(prev: Record<string, string>, next: Record<string, string>): BorderDiff {
   return {
     added: Object.keys(next).filter((k) => !(k in prev)),
     removed: Object.keys(prev).filter((k) => !(k in next)),
@@ -55,7 +58,7 @@ export function diffStations(prev: Record<string, string>, next: Record<string, 
   };
 }
 
-export function hasChanges(d: StationDiff): boolean {
+export function hasChanges(d: BorderDiff): boolean {
   return d.added.length + d.removed.length + d.changed.length > 0;
 }
 
@@ -63,24 +66,24 @@ export function hasChanges(d: StationDiff): boolean {
  * 結構斷言：頁面必須仍然長得像我們認識的那張表。
  *
  * 這是**唯一**能分辨「頁面沒變」與「頁面改版了、我們抓到垃圾」的東西。
- * 沒有它，改版會表現成「幾十個口岸同時變更」——一則吵雜的 PR，而不是一個明確的失敗。
+ * 沒有它，改版會表現成「十幾個口岸同時變更」——一則吵雜的 PR，而不是一個明確的失敗。
  *
- * @param stations 解析出來的站名
- * @param expectAtLeast 至少要抓到幾個站
- * @param mustInclude 必定要出現的站名（用來釘住「這還是同一張表」）
+ * @param borders 解析出來的口岸名
+ * @param expectAtLeast 至少要抓到幾個口岸
+ * @param mustInclude 必定要出現的口岸名（用來釘住「這還是同一張表」）
  */
-export function looksLikeControlPointTable(
-  stations: Record<string, string>,
+export function looksLikeBorderTable(
+  borders: Record<string, string>,
   expectAtLeast: number,
   mustInclude: string[]
 ): { ok: true } | { ok: false; reason: string } {
-  const names = Object.keys(stations);
+  const names = Object.keys(borders);
   if (names.length < expectAtLeast) {
-    return { ok: false, reason: `只解析到 ${names.length} 個管制站（預期至少 ${expectAtLeast} 個）` };
+    return { ok: false, reason: `只解析到 ${names.length} 個口岸（預期至少 ${expectAtLeast} 個）` };
   }
   const missing = mustInclude.filter((n) => !names.includes(n));
   if (missing.length) {
-    return { ok: false, reason: `找不到預期中的管制站：${missing.join("、")}` };
+    return { ok: false, reason: `找不到預期中的口岸：${missing.join("、")}` };
   }
   return { ok: true };
 }

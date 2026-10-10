@@ -3,17 +3,9 @@
 // 这里每一个「期望值」都是用 **openssl 独立算出来的**（printf '%s' '<串>' | openssl md5），
 // 不是拿本仓的实现跑一遍抄下来——否则测试只能证明「代码没变」，不能证明「代码是对的」。
 import { amapSig } from "../src/lib/amap-sign";
+import { makeChecker } from "./_check";
 
-let passed = 0;
-const failures: string[] = [];
-
-function check(label: string, ok: boolean) {
-  if (ok) {
-    passed++;
-  } else {
-    failures.push(label);
-  }
-}
+const { check, report } = makeChecker();
 
 async function main() {
   // ── 1. 官方示例（lbs.amap.com/faq/quota-key/key/41181）──
@@ -81,12 +73,7 @@ async function main() {
       amapSig({ a: "1", A: "2" }, "S") !== amapSig({ A: "1", a: "2" }, "S")
   );
 
-  console.log(`\n✅ 通過 ${passed} 項`);
-  if (failures.length) {
-    console.log(`❌ 失敗 ${failures.length} 項：`);
-    for (const f of failures) console.log(`   - ${f}`);
-  }
-  process.exit(failures.length === 0 ? 0 : 1);
+  report();
 }
 
 main();

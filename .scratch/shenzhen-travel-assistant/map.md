@@ -34,7 +34,8 @@ Status: open
 <!-- 已完成票的索引，一行一票：链接 + 一句话要点。 -->
 
 - [研究：深圳美食 / 景点 / 优惠精选内容库](issues/03-shenzhen-content-library.md)：产出精选内容库（7 路线 / 12 美食 / 10 优惠 + 8 类稳定优惠形态 / 港客实用信息 + system prompt 段落），来源偏官方一手，未核实项已标注。**时效：新皇岗口岸 2026-10-12 开通。** 详情见 `research/03-shenzhen-content.md`。
-- [决策：预设按钮清单与每个按钮的固定输出格式](issues/01-preset-buttons-and-output-formats.md)：定下 6 按钮 → 关键词 → 卡片契约；一键一卡、路线可「換一條」、美食/优惠为清单卡、人数弹快捷选项、手打命中走同一确定性路径。**这是前端与规则引擎的共同契约。**
+- [决策：预设按钮清单与每个按钮的固定输出格式](issues/01-preset-buttons-and-output-formats.md)：定下 **7** 按钮 → 关键词 → 卡片契约；一键一卡、路线可「換一條」、美食/优惠为清单卡、人数弹快捷选项、手打命中走同一确定性路径。**这是前端与规则引擎的共同契约。**
+  > 對帳（2026-10-10）：原寫「定下 6 按钮」。口岸按票 12 加入后为 **7 个**，契约表已同步。
 - [原型：聊天界面与卡片视觉](issues/02-chat-ui-and-card-visuals.md)：**按 UA 自动分发**——手機用 A 對話優先、桌面用 C 分欄指令台；B 卡片牆落选。已实现并验证（`src/app/page.tsx`），结合响应式微调。原型在 `src/components/prototype/`。
 - [任務：規則引擎分發器 + 內容數據落地](issues/08-rule-engine-dispatcher.md)：分發器（關鍵詞 → 卡片）+ 數據落地（7 路線 / 12 美食 / 10 優惠）+ 型別擴充（foodList/dealList + 3 日天氣）。19 個匹配用例全過，build 綠。**順帶完成票 06 的天氣代碼部分。**
 - [任務：接入 Claude API + system prompt 到 /api/chat](issues/04-claude-api-integration.md)：串流 SSE 的 `/api/chat`（Opus 4.8，adaptive thinking + low effort）+ 約 1000 字繁體 system prompt。**顯式隔離 shell 的 Claude Code 代理環境**，否則會靜默用 DeepSeek。降級路徑已驗證；真實路徑待填 key。
@@ -42,6 +43,8 @@ Status: open
 - [任務：路線地圖（高德路徑規劃）](issues/10-amap-route-map.md)：站點座標一次地理編碼烘入資料；伺服器端逐段駕車路徑規劃 → **高德靜態地圖**，經 `/api/route-map` **代理取圖**（key 不外洩）。原定 JS 互動地圖因缺第二把 key 改為靜態圖。已驗證。
 - [任務：語音輸入（瀏覽器 Web Speech）](issues/05-voice-input.md)：`useSpeechInput` hook（`zh-HK` 優先、回落 `zh-CN`；留雲端 ASR 接縫）+ `MicButton`（臨時文字填框、定稿即送；出錯/權限/隱私以對話訊息提示）。tsc 與冒煙通過；瀏覽器行為待人工驗證。
 - [任務：三語國際化](issues/11-i18n.md)：English / 简体 / 繁體 三語全站（UI 文案 + 195 條內容數據 + 規則引擎文案 + LLM 回答語言）。測試期預設簡體（臨時開關）；繁體為正本；英文地名採「拼音 + 英文 +（簡體）」。**已超出原 MVP 終點，等於擴展了目的地。**
+- [任務：深港口岸（口岸卡 + 實時排隊）](issues/12-border-crossings.md)：第 7 個按鈕 🛂，出**口岸卡**——6 個口岸 + 香港入境處**實時排隊**（公開數據，零密鑰）。**刻意不列皇崗**：新皇崗 2026-10-12 啟用，但拿不到運營方確認（入境處頁面還停在 2026-06）。**刻意不寫跨境巴士路線編號**（來源非客運方原始頁）。
+- [任務：口岸資料變更監看](issues/13-border-watch.md)：每日 GitHub Actions 抓入境處口岸頁 → 比對快照 → **變了就開 PR**。**不解析時刻、不改 `borders.ts`**（官方頁做不到可靠解析：深圳灣一段有兩條時刻、時刻是自由散文）。跑 Actions 而非 Vercel Cron —— 後者要往對外服務的 app 塞一把倉庫寫入 token。
 
 ## Not yet specified
 

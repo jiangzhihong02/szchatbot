@@ -6,20 +6,11 @@
 // 所以兩者都要有斷言釘住。
 import { mapQueueLevels } from "../src/lib/border-live-core";
 import { BORDERS } from "../src/lib/data/borders";
+import { BORDER_LIVE_CODES } from "../src/lib/types";
+import type { BorderLiveCode } from "../src/lib/types";
+import { makeChecker } from "./_check";
 
-let passed = 0;
-const failures: string[] = [];
-
-function check(label: string, ok: boolean) {
-  if (ok) {
-    passed++;
-  } else {
-    failures.push(label);
-  }
-}
-
-/** 香港入境處公開數據實際提供的管制站代碼（2026-10 實測）。 */
-const IMMD_CODES = ["HYW", "HZM", "LMC", "LSC", "LWS", "MKT", "SBC", "STK"];
+const { check, report } = makeChecker();
 
 async function main() {
   // ── 1. 代碼 → 等級的映射 ──
@@ -42,11 +33,15 @@ async function main() {
   // ── 4. 未知代碼一律略過，不得瞎猜 ──
   check("未知等級碼 → 略過該站", mapQueueLevels({ LWS: { depQueue: 77 } })?.LWS === undefined);
   check("缺 depQueue → 略過該站", mapQueueLevels({ LWS: {} })?.LWS === undefined);
-  // 註：本函式**不**過濾「不認識的管制站代碼」，這是刻意的——過濾就得把口岸清單餵進來，
-  // 讓一個純映射器去認識業務資料。多出來的鍵是惰性的：派發器只按 `liveCode` 取值。
+  // 註：不認識的**管制站代碼**由型別（`BorderLiveCode`）與映射器一起擋掉，
+  // 所以這裡斷言的是行為，不是「剛好沒出現」。
+  check(
+    "不認識的管制站代碼 → 過濾掉",
+    Object.keys(mapQueueLevels({ ZZZ: { depQueue: 0 } }) ?? {}).length === 0
+  );
   check(
     "未知等級碼不會變成任何等級",
-    Object.values(mapQueueLevels({ XXX: { depQueue: 77 } }) ?? {}).length === 0
+    Object.values(mapQueueLevels({ LWS: { depQueue: 77 } }) ?? {}).length === 0
   );
 
   // ── 5. 壞輸入不得拋錯 ──
@@ -63,14 +58,14 @@ async function main() {
   check("每個口岸都有兩側接駁", BORDERS.every((b) => !!b.hkAccess && !!b.szAccess));
   check("每個口岸都有特點與提示", BORDERS.every((b) => !!b.note && !!b.tip));
 
-  // ── 7. liveCode 必須是入境處真實存在的代碼（打錯字會讓徽章靜默消失）──
+  // ── 7. liveCode 必須是入境處真實存在的代碼（型別已強制，這裡再驗一次資料）──
   for (const b of BORDERS) {
     check(
       `liveCode 合法（${b.id} → ${b.liveCode ?? "無"}）`,
-      b.liveCode === null || IMMD_CODES.includes(b.liveCode)
+      b.liveCode === null || BORDER_LIVE_CODES.includes(b.liveCode)
     );
   }
-  const used = BORDERS.map((b) => b.liveCode).filter((c): c is string => c !== null);
+  const used = BORDERS.map((b) => b.liveCode).filter((c): c is BorderLiveCode => c !== null);
   check("兩個口岸不會共用同一個 liveCode", new Set(used).size === used.length);
 
   // ── 8. 開放時間必須是時刻，不是文案 ──
@@ -87,12 +82,7 @@ async function main() {
     !used.includes("LMC")
   );
 
-  console.log(`\n✅ 通過 ${passed} 項`);
-  if (failures.length) {
-    console.log(`❌ 失敗 ${failures.length} 項：`);
-    for (const f of failures) console.log(`   - ${f}`);
-  }
-  process.exit(failures.length === 0 ? 0 : 1);
+  report();
 }
 
 main();

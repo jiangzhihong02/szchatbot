@@ -42,7 +42,7 @@ cp .env.example .env.local   # 填入下方環境變數
 npm run dev                  # http://localhost:3000
 ```
 
-冒煙測試（規則分發器 + 譯文覆蓋 + 同源閘，共 181 項斷言）：
+冒煙測試（規則分發器 + 譯文覆蓋 + 同源閘 + 高德簽名 + 口岸資料 + 變更偵測，共 296 項斷言）：
 
 ```bash
 npm run check

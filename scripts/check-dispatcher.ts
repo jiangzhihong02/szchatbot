@@ -10,17 +10,9 @@ import { weatherTerm, windTerm, adviceKeyFor } from "../src/lib/i18n/weather-tex
 import { transcriptFor, nextRouteIndex } from "../src/lib/conversation";
 import type { ChatMsg } from "../src/lib/conversation";
 import { resolveVariant } from "../src/lib/device";
+import { makeChecker } from "./_check";
 
-let passed = 0;
-const failures: string[] = [];
-
-function check(label: string, ok: boolean) {
-  if (ok) {
-    passed++;
-  } else {
-    failures.push(label);
-  }
-}
+const { check, report } = makeChecker();
 
 function cardOf(cards: Card[], type: Card["type"]): Card | undefined {
   return cards.find((c) => c.type === type);
@@ -239,12 +231,7 @@ async function main() {
   check("未知覆寫值 → 回退 UA", resolveVariant(IPHONE, "nonsense") === "mobile");
 
   // ── 报告 ──
-  console.log(`\n✅ 通過 ${passed} 項`);
-  if (failures.length) {
-    console.log(`❌ 失敗 ${failures.length} 項：`);
-    for (const f of failures) console.log(`   - ${f}`);
-  }
-  process.exit(failures.length === 0 ? 0 : 1);
+  report();
 }
 
 main();

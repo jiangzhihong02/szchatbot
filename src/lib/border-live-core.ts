@@ -1,4 +1,5 @@
-import type { QueueLevel } from "./types";
+import type { QueueLevel, BorderLiveCode } from "./types";
+import { BORDER_LIVE_CODES } from "./types";
 
 /**
  * 實時排隊的**純內部縫** —— 不碰網路、不碰快取，故可直接單測。
@@ -23,6 +24,10 @@ const LEVELS: Record<number, QueueLevel> = {
 /** 入境處公開數據的形狀（只取本專案用到的欄位）。 */
 export type ImmdQueueJson = Record<string, { arrQueue?: number; depQueue?: number } | undefined>;
 
+function isLiveCode(s: string): s is BorderLiveCode {
+  return (BORDER_LIVE_CODES as readonly string[]).includes(s);
+}
+
 /**
  * 純函式：入境處 JSON → 管制站代碼 → 等級。無資料或形狀不對 → null（前端不顯示徽章）。
  *
@@ -31,11 +36,17 @@ export type ImmdQueueJson = Record<string, { arrQueue?: number; depQueue?: numbe
  *
  * ⚠️ `99` 是「非服務時間」，**絕不可當成「暢通」**。沙頭角現在回傳的就是 99——
  *    若天真地把 0/1/2 映射過去，會把一個根本沒開的口岸顯示成一路順暢。
+ *
+ * 回傳型別是 `Partial<Record<BorderLiveCode, …>>`，所以不認識的管制站代碼會被過濾掉：
+ * 要滿足這個型別就得先驗證，而驗證正是我們要的。
  */
-export function mapQueueLevels(json: ImmdQueueJson | null): Record<string, QueueLevel> | null {
+export function mapQueueLevels(
+  json: ImmdQueueJson | null
+): Partial<Record<BorderLiveCode, QueueLevel>> | null {
   if (!json || typeof json !== "object") return null;
-  const out: Record<string, QueueLevel> = {};
+  const out: Partial<Record<BorderLiveCode, QueueLevel>> = {};
   for (const [code, v] of Object.entries(json)) {
+    if (!isLiveCode(code)) continue;
     const level = LEVELS[v?.depQueue ?? -1];
     if (level) out[code] = level;
   }
