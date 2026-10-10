@@ -49,6 +49,15 @@ jobs:
             exit 0
           fi
 
+          # 已經有一個未處理的監看 PR 就不再開第二個。
+          # 否則一個沒人合的變更，會每天開一個新 PR —— 那種噪音三天就會讓人開始無視。
+          OPEN=$(gh pr list --state open --json headRefName \
+                   --jq '[.[] | select(.headRefName | startswith("border-watch/"))] | length')
+          if [ "$OPEN" != "0" ]; then
+            echo "已有 $OPEN 個未處理的監看 PR，略過。"
+            exit 0
+          fi
+
           BRANCH="border-watch/$(date -u +%Y-%m-%d)"
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
