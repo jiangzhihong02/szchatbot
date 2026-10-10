@@ -54,6 +54,7 @@ npm run check
 | `APP_ANTHROPIC_BASE_URL` | 否 | LLM 端點，預設 `https://api.anthropic.com`。 |
 | `APP_ANTHROPIC_MODEL` | 否 | 預設 `claude-opus-4-8`。 |
 | `AMAP_KEY` | 是 | 高德開放平台「**Web 服務**」key（天氣 + 路線規劃）。未設時天氣回退 mock、地圖 404。 |
+| `AMAP_SECRET` | 否 | 高德「數字簽名」**私鑰**。設了就每個請求附 `sig`；未設則不簽。 |
 
 > `APP_` 前綴是刻意的：避免繼承 shell 中 Claude Code 的 `ANTHROPIC_*` 環境（那會指向第三方代理）。
 
@@ -69,6 +70,8 @@ npm run check
 2. **在 Vercel Project Settings → Firewall 加一條限流規則。** Hobby 方案含 1 條（100 萬請求額度），不必寫程式、不必引 KV。
 
 另外建議把 Vercel 的環境變數標為 **Secret**（write-only，存進去就讀不回來）。注意：**改了環境變數只對新部署生效**，改完要重新部署一次。
+
+**高德 key 請加開「數字簽名」**：在高德控制台為這把 Web 服務 key 啟用數字簽名後會拿到一個**私鑰**，填進 `AMAP_SECRET`。之後每個請求都附 `sig`，而**洩漏的 key 在沒有私鑰時無法使用**——這比輪換 key 徹底：輪換後的新 key 一樣明文躺在 `.env.local` 裡。兩側必須一致，**控制台開了而環境變數沒填 → 所有高德請求以 `10007` 失敗**（天氣靜默回退 mock、地圖 404）。演算法與測試見 `src/lib/amap-sign.ts`。
 
 **這個倉庫是公開的。** GitHub 對公開倉庫免費提供 secret scanning 與 push protection（私有倉庫要付費的 GitHub Secret Protection），開啟路徑：Settings → Security and quality。
 

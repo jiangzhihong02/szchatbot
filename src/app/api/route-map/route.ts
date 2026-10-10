@@ -1,5 +1,5 @@
 import { ROUTES } from "@/lib/data/routes";
-import { buildRouteMapQuery } from "@/lib/route-map";
+import { buildRouteMapParams } from "@/lib/route-map";
 import { fetchStaticMapPng } from "@/lib/amap";
 
 /**
@@ -14,10 +14,10 @@ export async function GET(req: Request): Promise<Response> {
     return new Response("route not found", { status: 404 });
   }
 
-  const query = await buildRouteMapQuery(id);
-  if (!query) return new Response("map unavailable", { status: 404 });
+  const params = await buildRouteMapParams(id);
+  if (!params) return new Response("map unavailable", { status: 404 });
 
-  const png = await fetchStaticMapPng(query);
+  const png = await fetchStaticMapPng(params);
   if (!png) return new Response("map unavailable", { status: 404 });
 
   return new Response(png, {

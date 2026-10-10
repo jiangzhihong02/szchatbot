@@ -1,11 +1,11 @@
 import { cacheLife } from "next/cache";
 import { ROUTES } from "./data/routes";
 import type { RouteStop } from "./types";
-import { amapJson, hasAmapKey, staticMapQuery } from "./amap";
+import { amapJson, hasAmapKey, staticMapParams } from "./amap";
 
 /**
  * 路線地圖（票 10）—— 伺服器端。
- * 用高德路徑規劃（駕車）逐段算真實走法，再組出**不含 key** 的靜態地圖查詢字串。
+ * 用高德路徑規劃（駕車）逐段算真實走法，再組出**不含 key** 的靜態地圖參數表。
  * 帶 key 的取圖在 `amap.fetchStaticMapPng()`，故本檔輸出可以安全落日誌／當快取鍵。
  */
 
@@ -46,10 +46,10 @@ function zoomFor(stops: RouteStop[]): number {
 }
 
 /**
- * 逐段駕車路徑規劃 → 靜態地圖的**查詢字串**（不含 key）。無 key / 站點不足 → null。
+ * 逐段駕車路徑規劃 → 靜態地圖的**參數表**（不含 key）。無 key / 站點不足 → null。
  * `use cache`：路線與路網短期不變，快取一週。
  */
-export async function buildRouteMapQuery(routeId: string): Promise<string | null> {
+export async function buildRouteMapParams(routeId: string): Promise<Record<string, string> | null> {
   "use cache";
   cacheLife({ revalidate: 604800 });
 
@@ -71,7 +71,7 @@ export async function buildRouteMapQuery(routeId: string): Promise<string | null
     (Math.min(...lats) + Math.max(...lats)) / 2
   ).toFixed(6)}`;
 
-  return staticMapQuery({
+  return staticMapParams({
     size: "750*380",
     zoom: zoomFor(route.stops),
     center,
