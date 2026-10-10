@@ -22,11 +22,11 @@ Label: wayfinder:task
 
 **新增**
 
-- `src/lib/checkpoint-watch.ts` —— 純函式：表格分段、差異比對、**結構斷言**
+- `src/lib/border-watch.ts` —— 純函式：表格分段、差異比對、**結構斷言**
 - `scripts/watch-borders.ts` —— 抓取 → 解析 → 斷言 → 比對 → 產報告
 - `.github/workflows/watch-borders.yml` —— 每日排程 + 開 PR
 - `scripts/fixtures/immd-control-points.txt` —— 2026-10-10 抓的**真實**表格（當測資）
-- `scripts/check-checkpoint-watch.ts` —— 24 項斷言
+- `scripts/check-border-watch.ts` —— 24 項斷言
 
 **關鍵設計決定：不解析時刻，只偵測「哪一段變了」。**
 
@@ -62,3 +62,5 @@ Label: wayfinder:task
 **覆核**：我們六個口岸的時刻與官方頁逐條相符（見票 12 的資料）。
 
 295 項斷言；`tsc` 與 build 綠。
+
+> **對帳（2026-10-10，code-review 後）**：本票原把模組命名為 `checkpoint-watch`，違反 `CONTEXT.md` 自己為 `口岸` 訂的 `_Avoid_: 檢查站`，且與同一功能的其餘部分（`borders.ts`、`border-live*.ts`、`watch-borders.ts`）不一致。已全面更名為 `border-watch`（含識別碼、fixture、快照檔名、workflow 路徑）。上面兩處路徑已同步。斷言數其後增至 296。
