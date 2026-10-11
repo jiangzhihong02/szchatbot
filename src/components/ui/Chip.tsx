@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { FOCUS } from "./styles";
 
 /**
  * 可點選的膠囊 chip（預設按鈕、出行組合快捷選項）。
@@ -15,7 +16,7 @@ export function Chip({
     : "border-line bg-surface text-ink-2 hover:border-ink-3 hover:text-ink";
   return (
     <button
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${look} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-40 ${FOCUS} ${look} ${className}`}
       {...rest}
     >
       {children}
