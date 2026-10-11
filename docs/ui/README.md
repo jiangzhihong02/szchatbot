@@ -31,6 +31,6 @@
 | 階段 | 內容 | 狀態 |
 |---|---|---|
 | 2 | Design tokens（@theme 語義色/字體/陰影）+ 修字體 | ✅ [記錄](phase-2-tokens.md) |
-| 3 | 共享組件 `src/components/ui/*` + lucide-react | 待辦 |
+| 3 | 共享組件 `src/components/ui/*` + lucide-react | ✅ [記錄](phase-3-primitives.md) |
 | 4 | 逐面套用（兩版面 · 六卡 · Composer · PresetBar · 選擇器 · 麥 · 語言 · 空/載入） | 待辦 |
 | 5 | 響應式 + 收尾（tablet · focus ring · dvh/overflow · 對比度） | 待辦 |
