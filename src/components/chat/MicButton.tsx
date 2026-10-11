@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSpeechInput } from "@/lib/speech";
 import { useI18n } from "@/components/i18n/LocaleProvider";
+import { IconButton, Icon } from "@/components/ui";
 
 /**
  * 語音輸入按鈕（票 05）。文案隨語言。
@@ -51,20 +52,18 @@ export function MicButton({
     speech.toggle();
   };
 
-  const px = size === "sm" ? "h-9 w-9 text-base" : "h-10 w-10 text-lg";
-
   return (
-    <button
+    <IconButton
       type="button"
+      tone={speech.listening ? "danger" : "neutral"}
+      size={size}
       onClick={handleClick}
       disabled={disabled}
       title={speech.supported ? m.voice.label : m.voice.unsupported}
       aria-label={speech.listening ? m.voice.stop : m.voice.label}
-      className={`flex ${px} flex-none items-center justify-center rounded-full transition disabled:opacity-40 ${
-        speech.listening ? "animate-pulse bg-red-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-      }`}
+      className={speech.listening ? "animate-pulse" : ""}
     >
-      🎤
-    </button>
+      <Icon name="mic" size={size === "sm" ? 17 : 19} />
+    </IconButton>
   );
 }

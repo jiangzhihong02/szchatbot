@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Travellers } from "@/lib/types";
 import { useI18n } from "@/components/i18n/LocaleProvider";
+import { Card, Button, Chip, Input } from "@/components/ui";
 
 /** 出行組合快捷選項（契約規則 3）。 */
 export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }) {
@@ -13,44 +14,39 @@ export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }
 
   if (custom) {
     return (
-      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
-        <p className="text-sm font-medium text-slate-900">{m.travellers.customTitle}</p>
+      <Card className="p-4">
+        <p className="text-sm font-semibold text-ink">{m.travellers.customTitle}</p>
         <div className="mt-3 flex items-center gap-4">
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-2">
             {m.travellers.adults}
-            <input
+            <Input
               type="number"
               min={0}
               max={50}
               value={adults}
               onChange={(e) => setAdults(Number(e.target.value))}
-              className="ml-2 w-16 rounded-lg border border-slate-200 px-2 py-1 text-center"
+              className="ml-2 h-9 w-16 !rounded-lg px-2 text-center"
             />
           </label>
-          <label className="text-sm text-slate-600">
+          <label className="text-sm text-ink-2">
             {m.travellers.children}
-            <input
+            <Input
               type="number"
               min={0}
               max={50}
               value={children}
               onChange={(e) => setChildren(Number(e.target.value))}
-              className="ml-2 w-16 rounded-lg border border-slate-200 px-2 py-1 text-center"
+              className="ml-2 h-9 w-16 !rounded-lg px-2 text-center"
             />
           </label>
         </div>
-        <div className="mt-3 flex gap-2">
-          <button
-            onClick={() => onPick({ adults, children })}
-            className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white"
-          >
-            {m.travellers.calculate}
-          </button>
-          <button onClick={() => setCustom(false)} className="rounded-xl px-4 py-2 text-sm text-slate-500">
+        <div className="mt-4 flex gap-2">
+          <Button onClick={() => onPick({ adults, children })}>{m.travellers.calculate}</Button>
+          <Button variant="ghost" onClick={() => setCustom(false)}>
             {m.travellers.back}
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     );
   }
 
@@ -61,25 +57,16 @@ export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }
   ];
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-900/5">
-      <p className="text-sm font-medium text-slate-900">{m.travellers.prompt}</p>
+    <Card className="p-4">
+      <p className="text-sm font-semibold text-ink">{m.travellers.prompt}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {quick.map((q) => (
-          <button
-            key={q.label}
-            onClick={() => onPick(q.t)}
-            className="rounded-full border border-teal-600 px-3 py-1.5 text-sm font-medium text-teal-700 transition hover:bg-teal-50"
-          >
+          <Chip key={q.label} onClick={() => onPick(q.t)}>
             {q.label}
-          </button>
+          </Chip>
         ))}
-        <button
-          onClick={() => setCustom(true)}
-          className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:border-slate-400"
-        >
-          {m.travellers.custom}
-        </button>
+        <Chip onClick={() => setCustom(true)}>{m.travellers.custom}</Chip>
       </div>
-    </div>
+    </Card>
   );
 }

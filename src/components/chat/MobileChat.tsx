@@ -20,31 +20,30 @@ export function MobileChat() {
   }, [messages]);
 
   return (
-    <div className="mx-auto flex h-[100dvh] max-w-md flex-col bg-slate-50">
-      <header className="flex items-center gap-3 bg-gradient-to-r from-teal-600 to-cyan-600 px-4 py-3 text-white">
-        <span className="text-2xl">🌆</span>
+    <div className="mx-auto flex h-[100dvh] max-w-md flex-col bg-bg">
+      <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
         <div className="flex-1">
-          <p className="text-sm font-semibold">{m.brand}</p>
-          <p className="text-[11px] opacity-85">{m.tagline}</p>
+          <p className="text-sm font-semibold tracking-tight text-ink">{m.brand}</p>
+          <p className="text-[11px] text-ink-3">{m.tagline}</p>
         </div>
-        <LocaleSwitcher tone="dark" />
+        <LocaleSwitcher />
       </header>
 
-      <main className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+      <main className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
         {messages.map((msg) => (
           <div key={msg.id}>
             {msg.role === "user" ? (
               <div className="flex justify-end">
-                <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-teal-600 px-4 py-2.5 text-sm text-white">
+                <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary-weak px-4 py-2.5 text-sm text-ink">
                   {msg.text}
                 </div>
               </div>
             ) : (
-              <div className="max-w-[92%] space-y-2">
+              <div className="max-w-[94%] space-y-2.5">
                 {msg.text || msg.streaming ? (
-                  <div className="whitespace-pre-wrap rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-sm text-slate-700 shadow-sm ring-1 ring-slate-900/5">
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
                     {msg.text}
-                    {msg.streaming && <span className="ml-0.5 animate-pulse">▍</span>}
+                    {msg.streaming && <span className="ml-0.5 animate-pulse text-ink-3">▍</span>}
                   </div>
                 ) : null}
                 {msg.cards?.map((c, i) => (
@@ -60,7 +59,7 @@ export function MobileChat() {
         <div ref={bottomRef} />
       </main>
 
-      <div className="border-t border-slate-200 bg-white/85 backdrop-blur">
+      <div className="border-t border-line bg-surface">
         <div className="pt-2">
           <PresetBar onPick={sendIntent} disabled={busy} />
         </div>

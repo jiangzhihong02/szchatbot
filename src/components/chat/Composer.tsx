@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MicButton } from "./MicButton";
 import { useI18n } from "@/components/i18n/LocaleProvider";
+import { Input, IconButton, Icon } from "@/components/ui";
 
 /**
  * 輸入列（麥克風 + 輸入框 + 送出）。手機與桌面兩個版面共用，只有尺寸不同。
@@ -29,13 +30,13 @@ export function Composer({
     setDraft("");
   };
 
-  const inputCls = size === "sm" ? "h-9 px-3" : "h-10 px-4";
-  const sendCls = size === "sm" ? "h-9 w-9" : "h-10 w-10";
+  const h = size === "sm" ? "h-9" : "h-10";
+  const btn = size === "sm" ? "sm" : "md";
 
   return (
-    <div className={`flex items-center gap-2 ${size === "sm" ? "p-3" : "px-3 py-2"}`}>
+    <div className={`flex items-center gap-2 ${size === "sm" ? "p-3" : "px-3 py-2.5"}`}>
       <MicButton
-        size={size === "sm" ? "sm" : "md"}
+        size={btn}
         disabled={disabled}
         onInterim={setDraft}
         onFinal={(t) => {
@@ -44,22 +45,23 @@ export function Composer({
         }}
         onNotice={onNotice}
       />
-      <input
+      <Input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && submit()}
         placeholder={m.composer.placeholder}
-        className={`${inputCls} flex-1 rounded-full bg-slate-100 text-sm outline-none`}
+        className={`${h} flex-1`}
       />
-      <button
+      <IconButton
+        tone="primary"
+        size={btn}
         type="button"
         onClick={submit}
         disabled={disabled || !draft.trim()}
         aria-label={m.composer.send}
-        className={`flex ${sendCls} flex-none items-center justify-center rounded-full bg-teal-600 text-white transition disabled:opacity-40`}
       >
-        ↑
-      </button>
+        <Icon name="send" size={size === "sm" ? 16 : 18} />
+      </IconButton>
     </div>
   );
 }
