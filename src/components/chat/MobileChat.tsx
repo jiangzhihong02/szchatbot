@@ -8,6 +8,7 @@ import { TravellersPicker } from "./TravellersPicker";
 import { Composer } from "./Composer";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useI18n } from "@/components/i18n/LocaleProvider";
+import { Card, CardSkeleton } from "@/components/ui";
 
 /** 手機版：對話優先（票 02 的 verdict）。 */
 export function MobileChat() {
@@ -46,9 +47,13 @@ export function MobileChat() {
                     {msg.streaming && <span className="ml-0.5 animate-pulse text-ink-3">▍</span>}
                   </div>
                 ) : null}
-                {msg.cards?.map((c, i) => (
-                  <CardView key={i} card={c} onCycleRoute={() => cycleRoute(msg)} />
-                ))}
+                {msg.cards && msg.cards.length > 0 ? (
+                  msg.cards.map((c, i) => <CardView key={i} card={c} onCycleRoute={() => cycleRoute(msg)} />)
+                ) : !msg.text && !msg.streaming && awaitingTravellers !== msg.id ? (
+                  <Card className="p-4">
+                    <CardSkeleton />
+                  </Card>
+                ) : null}
                 {awaitingTravellers === msg.id && (
                   <TravellersPicker onPick={(t) => chooseTravellers(msg.id, t)} />
                 )}

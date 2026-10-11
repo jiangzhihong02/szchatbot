@@ -44,10 +44,13 @@ function RouteCard({ data, onCycleRoute }: { data: RouteCardData; onCycleRoute?:
 
       {/* 站點與地圖：窄屏上下堆疊，寬屏並排（票 10） */}
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <ol className="space-y-3">
+        <ol className="relative space-y-3">
+          {route.stops.length > 1 && (
+            <span aria-hidden className="absolute bottom-2 left-3 top-2 w-px bg-line" />
+          )}
           {route.stops.map((s, i) => (
             <li key={`${s.name}-${i}`} className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-primary text-xs font-semibold text-on-primary">
+              <span className="relative mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-primary text-xs font-semibold text-on-primary">
                 {i + 1}
               </span>
               <div>

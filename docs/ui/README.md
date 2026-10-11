@@ -32,5 +32,7 @@
 |---|---|---|
 | 2 | Design tokens（@theme 語義色/字體/陰影）+ 修字體 | ✅ [記錄](phase-2-tokens.md) |
 | 3 | 共享組件 `src/components/ui/*` + lucide-react | ✅ [記錄](phase-3-primitives.md) |
-| 4 | 逐面套用（兩版面 · 六卡 · Composer · PresetBar · 選擇器 · 麥 · 語言 · 空/載入） | 待辦 |
-| 5 | 響應式 + 收尾（tablet · focus ring · dvh/overflow · 對比度） | 待辦 |
+| 4 | 逐面套用（兩版面 · 六卡 · Composer · PresetBar · 選擇器 · 麥 · 語言 · 空/載入） | ✅ [記錄](phase-4-apply.md) |
+| 5 | 響應式 + 收尾（tablet · focus ring · 時間線 · 骨架屏） | ✅ [記錄](phase-5-responsive.md) |
+
+**五階段全綠**。另記：按鈕質感定 V2、chrome 圖標定 Solar Duotone（備選對照見 [icon-decision.md](icon-decision.md)）。

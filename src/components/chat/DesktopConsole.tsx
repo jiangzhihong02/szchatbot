@@ -8,7 +8,7 @@ import { TravellersPicker } from "./TravellersPicker";
 import { Composer } from "./Composer";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useI18n } from "@/components/i18n/LocaleProvider";
-import { EmptyState, Icon } from "@/components/ui";
+import { EmptyState, Icon, Card, CardSkeleton } from "@/components/ui";
 
 /** 桌面版：分欄指令台（票 02 的 verdict）。左為動作與對話，右為大卡片舞台。 */
 export function DesktopConsole() {
@@ -26,7 +26,7 @@ export function DesktopConsole() {
 
   return (
     <div className="flex h-screen bg-bg">
-      <aside className="flex w-[22rem] flex-none flex-col border-r border-line bg-surface">
+      <aside className="flex w-80 flex-none flex-col border-r border-line bg-surface lg:w-[22rem]">
         <header className="flex items-center gap-2 border-b border-line px-4 py-3">
           <span className="flex-1 truncate font-semibold tracking-tight text-ink">{m.brand}</span>
           <LocaleSwitcher />
@@ -67,20 +67,19 @@ export function DesktopConsole() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6">
         <div className="mx-auto max-w-3xl space-y-4">
           {pending && <TravellersPicker onPick={(t) => chooseTravellers(pending.id, t)} />}
           {stagedCards ? (
             stagedCards.cards!.map((c, i) => <CardView key={i} card={c} onCycleRoute={() => cycleRoute(stagedCards)} />)
+          ) : pending ? null : busy ? (
+            <Card className="p-4">
+              <CardSkeleton />
+            </Card>
           ) : (
-            !pending && (
-              <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-line">
-                <EmptyState
-                  icon={<Icon name="pin" size={24} />}
-                  title={m.desktop.empty}
-                />
-              </div>
-            )
+            <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-line">
+              <EmptyState icon={<Icon name="pin" size={24} />} title={m.desktop.empty} />
+            </div>
           )}
         </div>
       </main>
