@@ -7,3 +7,5 @@ export { Chip } from "./Chip";
 export { Input } from "./Input";
 export { EmptyState } from "./EmptyState";
 export { Skeleton, CardSkeleton } from "./Skeleton";
+export { Icon } from "./Icon";
+export type { IconName } from "./Icon";

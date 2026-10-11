@@ -8,7 +8,7 @@ type Tone = "primary" | "neutral" | "danger";
 type Size = "sm" | "md";
 
 const TONE: Record<Tone, string> = {
-  primary: "bg-primary text-on-primary hover:bg-primary-hover",
+  primary: "bg-primary text-on-primary shadow-btn hover:bg-primary-hover hover:-translate-y-px hover:shadow-btn-hover",
   neutral: "bg-sunken text-ink-2 hover:bg-line",
   danger: "bg-danger-weak text-danger",
 };
@@ -27,7 +27,7 @@ export function IconButton({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone; size?: Size; children: ReactNode }) {
   return (
     <button
-      className={`inline-flex flex-none items-center justify-center rounded-full transition disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${TONE[tone]} ${SIZE[size]} ${className}`}
+      className={`inline-flex flex-none items-center justify-center rounded-full transition active:translate-y-0 disabled:pointer-events-none disabled:translate-y-0 disabled:opacity-40 disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${TONE[tone]} ${SIZE[size]} ${className}`}
       {...rest}
     >
       {children}
