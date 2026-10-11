@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * 深圳旅遊助手 · Design System tokens（UI 重構 Phase 2）
+ * ────────────────────────────────────────────────────────────
+ * 語義色 / 字體 / 陰影走 @theme，生成 bg-* / text-* / border-* / font-* / shadow-* 工具類，
+ * 讓組件用 `bg-primary text-ink border-line` 取代硬編碼的 teal-*/slate-*。
+ *
+ * 刻意**不覆蓋** Tailwind 內建的 radius / spacing 階 —— 過渡期若重定義 rounded-lg，
+ * 會靜默改變既有的 rounded-* 用法。半徑統一在組件層用內建階（rounded-xl=12 / 2xl=16 / full）。
+ *
+ * 配色：暖白中性底 + 一支克制的旅行綠作主色；黑（accent-ink）僅留給最高強度動作。
+ * 字體：修掉舊的 `body{font-family:Arial}` —— 它曾把 layout 載入的 Geist 整個蓋掉。
+ */
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    "PingFang HK", "PingFang SC", "Microsoft JhengHei", "Noto Sans CJK TC", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  /* 中性 / 表面 */
+  --color-bg: #fbfaf8;
+  --color-surface: #ffffff;
+  --color-sunken: #f4f2ee;
+  --color-ink: #1c1d1f;
+  --color-ink-2: #5a5f66;
+  --color-ink-3: #8c9199;
+  --color-ink-disabled: #bcc0c6;
+  --color-line: #eceae4;
+
+  /* 品牌 */
+  --color-primary: #2e6b57;
+  --color-primary-hover: #255747;
+  --color-primary-weak: #e8f0ec;
+  --color-on-primary: #ffffff;
+  --color-accent-ink: #17191c;
+
+  /* 狀態（實色 + 淡底）—— 排隊/優惠徽章由此生成 */
+  --color-success: #2f855a;
+  --color-success-weak: #e6f2eb;
+  --color-warning: #b7791f;
+  --color-warning-weak: #fbf1dd;
+  --color-danger: #c0392b;
+  --color-danger-weak: #fbeae8;
+  --color-info: #2b6cb0;
+  --color-info-weak: #e7f0f9;
+
+  /* 陰影（克制；優先配髮絲描邊） */
+  --shadow-e1: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-e2: 0 8px 24px -6px rgba(16, 24, 40, 0.12);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-ink);
+  }
 }
