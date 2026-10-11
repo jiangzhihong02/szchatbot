@@ -6,7 +6,7 @@ import type { InputHTMLAttributes } from "react";
 export function Input({ className = "", ...rest }: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`rounded-full bg-sunken px-4 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:ring-2 focus:ring-primary/40 ${className}`}
+      className={`rounded-full bg-sunken px-4 text-sm text-ink outline-none transition placeholder:text-ink-3 focus-visible:ring-2 focus-visible:ring-primary/40 ${className}`}
       {...rest}
     />
   );

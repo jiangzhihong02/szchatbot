@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from "react";
+import { FOCUS, PRIMARY_SURFACE } from "./styles";
 
 /**
  * 按鈕 —— 唯一定義。取代散落在 Composer/PresetBar/TravellersPicker 的 raw <button>。
@@ -9,7 +10,7 @@ type Variant = "primary" | "secondary" | "ghost" | "accent";
 type Size = "sm" | "md";
 
 const VARIANT: Record<Variant, string> = {
-  primary: "bg-primary text-on-primary shadow-btn hover:bg-primary-hover hover:-translate-y-px hover:shadow-btn-hover",
+  primary: PRIMARY_SURFACE,
   secondary: "bg-surface text-ink border border-line hover:bg-sunken",
   ghost: "bg-transparent text-ink-2 hover:bg-sunken",
   accent: "bg-accent-ink text-white shadow-btn hover:-translate-y-px hover:opacity-95 hover:shadow-btn-hover",
@@ -28,7 +29,7 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-1.5 rounded-full font-semibold transition active:translate-y-0 disabled:pointer-events-none disabled:translate-y-0 disabled:opacity-40 disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${VARIANT[variant]} ${SIZE[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-full font-semibold transition active:translate-y-0 disabled:pointer-events-none disabled:translate-y-0 disabled:opacity-40 disabled:shadow-none ${FOCUS} ${VARIANT[variant]} ${SIZE[size]} ${className}`}
       {...rest}
     />
   );

@@ -36,3 +36,9 @@
 | 5 | 響應式 + 收尾（tablet · focus ring · 時間線 · 骨架屏） | ✅ [記錄](phase-5-responsive.md) |
 
 **五階段全綠**。另記：按鈕質感定 V2、chrome 圖標定 Solar Duotone（備選對照見 [icon-decision.md](icon-decision.md)）。
+
+## Code review（兩軸，fixed point `ed54a18`）
+
+- **Spec 軸**：乾淨，零功能安全問題（`src/lib/**` 未改、i18n 鍵未動、六卡契約與 CardView 登記表不變、預設 emoji 全在）。
+- **Standards 軸**：2 硬 + 3 軟。**硬已修**：① 殘留的 off-scale 微字號 `text-[10px]/[11px]` → 收斂為 token `text-2xs`（`--text-2xs` 於 globals.css）；② `Input` 的 `focus:` → `focus-visible:`。**軟已修**：抽 `ui/styles.ts`（`FOCUS` / `PRIMARY_SURFACE`）去除 Button↔IconButton 重複串；修 `IconButton` 過時的 lucide 註釋。
+- **留著**：`Button variant="accent"` / `Tag tone="info"` 兩個暫無調用方的變體（備選，低成本保留）；優惠項未加 `Tag`（「deal badge」理解為已改的路線主題標籤）。

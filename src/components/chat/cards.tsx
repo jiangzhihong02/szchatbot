@@ -101,14 +101,14 @@ function WeatherCard({ data }: { data: WeatherData }) {
             <p className="text-xs text-ink-3">{m.dayLabels[d.dayOffset] ?? `Day ${d.dayOffset + 1}`}</p>
             <p className="mt-0.5 text-sm font-medium text-ink">{weatherTerm(d.text, locale)}</p>
             {d.textNight && d.textNight !== d.text && (
-              <p className="text-[10px] text-ink-3">
+              <p className="text-2xs text-ink-3">
                 {m.cards.night}：{weatherTerm(d.textNight, locale)}
               </p>
             )}
             <p className="mt-1 text-sm font-semibold text-ink">
               {d.tempMax}° <span className="font-normal text-ink-3">{d.tempMin}°</span>
             </p>
-            {d.wind && <p className="text-[10px] text-ink-3">{fmt(m.cards.windLabel, { w: windTerm(d.wind, locale) })}</p>}
+            {d.wind && <p className="text-2xs text-ink-3">{fmt(m.cards.windLabel, { w: windTerm(d.wind, locale) })}</p>}
           </div>
         ))}
       </div>
@@ -158,7 +158,7 @@ function TransportDealsCard({ data }: { data: PricingData }) {
         </ul>
       </div>
 
-      <p className="mt-2 text-[10px] text-ink-3">{m.engine.estimateNote}</p>
+      <p className="mt-2 text-2xs text-ink-3">{m.engine.estimateNote}</p>
     </Surface>
   );
 }
@@ -203,8 +203,8 @@ function DealListCard({ data }: { data: DealData[] }) {
               {d.merchant} · {d.area}
             </p>
             <p className="mt-1 text-xs text-ink-2">{d.summary}</p>
-            {d.validUntil && <p className="mt-1 text-[10px] text-ink-3">{d.validUntil}</p>}
-            <p className="mt-1 text-[10px] text-ink-3">
+            {d.validUntil && <p className="mt-1 text-2xs text-ink-3">{d.validUntil}</p>}
+            <p className="mt-1 text-2xs text-ink-3">
               {m.cards.source}：{d.sourceName}
             </p>
           </div>
@@ -260,14 +260,14 @@ function BorderCard({ data }: { data: BorderCardData }) {
                 {b.szAccess}
               </p>
               <p className="mt-1 text-xs font-medium text-primary">{b.note}</p>
-              {b.tip && <p className="mt-1 text-[10px] text-warning">💡 {b.tip}</p>}
+              {b.tip && <p className="mt-1 text-2xs text-warning">💡 {b.tip}</p>}
             </div>
           );
         })}
       </div>
 
       <p className="mt-3 rounded-xl bg-primary-weak px-3 py-2 text-xs text-primary">💳 {m.cards.borderPayment}</p>
-      <p className="mt-2 text-[10px] text-ink-3">
+      <p className="mt-2 text-2xs text-ink-3">
         {m.cards.borderUpdated} · {m.cards.borderDisclaimer}
       </p>
     </Surface>

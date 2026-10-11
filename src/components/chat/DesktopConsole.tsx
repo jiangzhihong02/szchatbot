@@ -54,7 +54,7 @@ export function DesktopConsole() {
                     </div>
                   ) : null}
                   {msg.cards && msg.cards.length > 0 && (
-                    <p className="px-0.5 text-[11px] text-ink-3">→ {m.desktop.shownRight}</p>
+                    <p className="px-0.5 text-2xs text-ink-3">→ {m.desktop.shownRight}</p>
                   )}
                 </div>
               )}

@@ -25,7 +25,7 @@ export function MobileChat() {
       <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
         <div className="flex-1">
           <p className="text-sm font-semibold tracking-tight text-ink">{m.brand}</p>
-          <p className="text-[11px] text-ink-3">{m.tagline}</p>
+          <p className="text-2xs text-ink-3">{m.tagline}</p>
         </div>
         <LocaleSwitcher />
       </header>
