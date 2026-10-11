@@ -4,7 +4,7 @@
  * 深圳旅遊助手 · Design System tokens（UI 重構 Phase 2）
  * ────────────────────────────────────────────────────────────
  * 語義色 / 字體 / 陰影走 @theme，生成 bg-* / text-* / border-* / font-* / shadow-* 工具類，
- * 讓組件用 `bg-primary text-ink border-line` 取代硬編碼的 teal-*/slate-*。
+ * 讓組件用 `bg-primary text-ink border-line` 取代硬編碼的 teal 與 slate 色階。
  *
  * 刻意**不覆蓋** Tailwind 內建的 radius / spacing 階 —— 過渡期若重定義 rounded-lg，
  * 會靜默改變既有的 rounded-* 用法。半徑統一在組件層用內建階（rounded-xl=12 / 2xl=16 / full）。

@@ -31,3 +31,11 @@
 - 改檔：`src/app/globals.css`（重寫為 token 定義）
 - 新增可用工具類：`bg-surface text-ink border-line bg-primary text-primary bg-primary-weak shadow-e1 …`
 - 不碰任何 TS／組件／資料；`npm run build` 綠。
+
+## 勘誤（dev 跑起來才暴露的）
+
+`npm run build` 綠，但 `npm run dev` 整頁 500。真因：上面的 CSS 註釋裡寫了 `teal-*/slate-*`，其中的 **`*/` 把 `/* 註釋 */` 提前關掉了**，後面的中文變成非法 CSS。`@tailwindcss/turbopack` 的 dev loader 抓到並報 `Parsing CSS source code failed`，而 build 的處理路徑把它吞了。
+
+- 已修：`teal-*/slate-*` → 「teal 與 slate 色階」，去掉那個 `*/`。
+- **教訓**：CSS 註釋裡別出現 `*/`；且「`build` 綠」對 CSS 不是充分閘，**真跑一次 dev** 才算數。
+- 另注：這台機器當時堆了 13 個 node 孤兒進程，耗盡資源 → turbopack dev worker spawn 失敗（Windows `0xc0000142`），一度把這個 parse error 蓋成了進程錯誤。清掉 node 孤兒後真錯誤才現形。
