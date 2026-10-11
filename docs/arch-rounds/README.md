@@ -18,5 +18,5 @@
 |---|---|---|---|---|
 | 1 | `useChat` 抽出 transport seam ＋ 純 `parseSSE` | 洩漏的 seam | Strong | ✅ 完成 · [記錄](round-1-usechat-transport-seam.md) |
 | 2 | 譯文欄位清單去重（`localizeX` 由 `*_FIELDS` 推導） | locality | Strong | ✅ 完成 · [記錄](round-2-i18n-field-dedup.md) |
-| 3 | 卡片種類登記表（沿 client／server 拆） | 缺失的 seam | Worth exploring | 待辦（先 grill 介面） |
+| 3 | 卡片種類登記表（沿 client／server 拆） | 缺失的 seam | Worth exploring | ✅ 完成（選 B：只做前端視圖表）· [記錄](round-3-card-view-registry.md) |
 | 4 | `chat/route.ts` 抽出 `sanitizeTurns` | 洩漏的 seam | Worth exploring | 待辦 |

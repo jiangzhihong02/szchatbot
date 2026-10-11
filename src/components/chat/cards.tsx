@@ -1,5 +1,7 @@
 "use client";
 
+import type { FC } from "react";
+
 import type {
   Card,
   RouteCardData,
@@ -22,7 +24,7 @@ import { weatherTerm, windTerm, adviceKeyFor } from "@/lib/i18n/weather-text";
  *    故切換語言時既有的卡片會即時跟著變。
  */
 
-function RouteCard({ data, onCycle }: { data: RouteCardData; onCycle?: () => void }) {
+function RouteCard({ data, onCycleRoute }: { data: RouteCardData; onCycleRoute?: () => void }) {
   const { m, locale } = useI18n();
   const route = localizeRoute(data.route, locale);
   const { index, total } = data;
@@ -71,9 +73,9 @@ function RouteCard({ data, onCycle }: { data: RouteCardData; onCycle?: () => voi
 
       {route.tips && <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">💡 {route.tips}</p>}
 
-      {onCycle && total > 1 && (
+      {onCycleRoute && total > 1 && (
         <button
-          onClick={onCycle}
+          onClick={onCycleRoute}
           className="mt-3 w-full rounded-xl border border-teal-600 py-2 text-sm font-medium text-teal-700 transition hover:bg-teal-50"
         >
           🔄 {m.cards.cycle}（{index + 1}/{total}）
@@ -271,19 +273,26 @@ function BorderCard({ data }: { data: BorderCardData }) {
   );
 }
 
+/**
+ * 卡片種類 → 視圖的**登記表**（架構第 3 輪）。
+ * 原本的 CardView switch 收成一張表：mapped type `{ [K in Card["type"]]: ... }`
+ * **型別強制每種卡片都有一個視圖**——漏一種就編譯不過（leverage）。
+ * 只收前端這一半：server 的 `buildCards` 是另一處（client／server 切分見 dispatch-contract.ts）。
+ */
+type CardViewProps<D> = { data: D; onCycleRoute?: () => void };
+
+const CARD_VIEWS: { [K in Card["type"]]: FC<CardViewProps<Extract<Card, { type: K }>["data"]>> } = {
+  route: RouteCard,
+  weather: WeatherCard,
+  transportDeals: TransportDealsCard,
+  foodList: FoodListCard,
+  dealList: DealListCard,
+  border: BorderCard,
+};
+
 export function CardView({ card, onCycleRoute }: { card: Card; onCycleRoute?: () => void }) {
-  switch (card.type) {
-    case "route":
-      return <RouteCard data={card.data} onCycle={onCycleRoute} />;
-    case "weather":
-      return <WeatherCard data={card.data} />;
-    case "transportDeals":
-      return <TransportDealsCard data={card.data} />;
-    case "foodList":
-      return <FoodListCard data={card.data} />;
-    case "dealList":
-      return <DealListCard data={card.data} />;
-    case "border":
-      return <BorderCard data={card.data} />;
-  }
+  // card.type 與 card.data 的相關性，TS 在索引表後證不出來，故此處一個受限的轉型；
+  // 真正的型別安全在 CARD_VIEWS 的構造處——每個條目都按自己的 data 型別檢查過。
+  const View = CARD_VIEWS[card.type] as FC<CardViewProps<unknown>>;
+  return <View data={card.data} onCycleRoute={onCycleRoute} />;
 }
