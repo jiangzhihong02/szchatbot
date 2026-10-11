@@ -36,3 +36,28 @@ export function transcriptFor(
 export function nextRouteIndex(current: number | undefined): number {
   return (current ?? 0) + 1;
 }
+
+/** 餵給 LLM 的一輪：角色＋文字（API 形狀，與帶卡片的 `ChatMsg` 不同）。 */
+export type Turn = { role: "user" | "assistant"; content: string };
+
+/**
+ * 清洗 /api/chat 收到的 messages（**純函式**，從路由抽出好單測）：
+ *   1. 丟掉非 user/assistant、或 content 非字串、或去空白後為空的；
+ *   2. 從第一條 user 起（Anthropic API 要求首條為 user，開頭的 assistant 要丟）；
+ *   3. 只留最近 `limit` 輪。
+ * 沒有任何 user → 回空陣列，呼叫方據此回 400。content 保留原樣（不 trim）。
+ */
+export function sanitizeTurns(raw: unknown, limit = 20): Turn[] {
+  const arr = Array.isArray(raw) ? raw : [];
+  const valid: Turn[] = [];
+  for (const m of arr) {
+    if (!m || typeof m !== "object") continue;
+    const { role, content } = m as { role?: unknown; content?: unknown };
+    if ((role === "user" || role === "assistant") && typeof content === "string" && content.trim().length > 0) {
+      valid.push({ role, content });
+    }
+  }
+  const firstUser = valid.findIndex((t) => t.role === "user");
+  if (firstUser === -1) return [];
+  return valid.slice(firstUser).slice(-limit);
+}

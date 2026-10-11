@@ -3,6 +3,8 @@ import { systemPromptFor } from "@/lib/system-prompt";
 import { resolveLocale } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { isSameOrigin, forbidden } from "@/lib/same-origin";
+import { sanitizeTurns } from "@/lib/conversation";
+import type { Turn } from "@/lib/conversation";
 
 /**
  * 自由問答 API（票 04）。
@@ -22,8 +24,6 @@ export const maxDuration = 60;
 const MODEL = process.env.APP_ANTHROPIC_MODEL ?? "claude-opus-4-8";
 const BASE_URL = process.env.APP_ANTHROPIC_BASE_URL ?? "https://api.anthropic.com";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
-
-type Turn = { role: "user" | "assistant"; content: string };
 
 const SSE_HEADERS = {
   "Content-Type": "text/event-stream; charset=utf-8",
@@ -53,24 +53,16 @@ export async function POST(req: Request): Promise<Response> {
   let turns: Turn[];
   let localeRaw: string | undefined;
   try {
-    const body = (await req.json()) as { messages?: Turn[]; locale?: string };
+    const body = (await req.json()) as { messages?: unknown; locale?: string };
     localeRaw = body.locale;
-    turns = (body.messages ?? []).filter(
-      (m) =>
-        (m.role === "user" || m.role === "assistant") &&
-        typeof m.content === "string" &&
-        m.content.trim().length > 0
-    );
+    turns = sanitizeTurns(body.messages); // 濾空、從首條 user 起、留最近 20 輪
   } catch {
     return new Response(JSON.stringify({ error: "invalid JSON body" }), { status: 400 });
   }
 
-  // API 要求首條為 user；丟掉開頭的 assistant 訊息。
-  const firstUser = turns.findIndex((t) => t.role === "user");
-  if (firstUser === -1) {
+  if (turns.length === 0) {
     return new Response(JSON.stringify({ error: "no user message" }), { status: 400 });
   }
-  turns = turns.slice(firstUser).slice(-20); // 只保留最近 20 輪，控制上下文長度
 
   // 文案（降級 / 拒絕 / 出錯）與 system prompt 都隨界面語言。
   const locale = resolveLocale(localeRaw);
