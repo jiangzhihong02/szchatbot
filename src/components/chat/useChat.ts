@@ -7,6 +7,8 @@ import type { DispatchResult } from "@/lib/dispatch-contract";
 import { transcriptFor, nextRouteIndex } from "@/lib/conversation";
 import type { ChatMsg } from "@/lib/conversation";
 import { useI18n } from "@/components/i18n/LocaleProvider";
+import { defaultTransport } from "./transport";
+import type { ChatTransport } from "./transport";
 
 /**
  * 聊天狀態（兩種版面共用）—— 這是**副作用外殼**：fetch、SSE、React state。
@@ -21,57 +23,7 @@ export type { ChatMsg };
 
 const uid = () => Math.random().toString(36).slice(2);
 
-async function callDispatch(body: unknown): Promise<DispatchResult> {
-  const res = await fetch("/api/dispatch", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`dispatch ${res.status}`);
-  return (await res.json()) as DispatchResult;
-}
-
-/** 讀 /api/chat 的 SSE，逐段回呼。locale 決定 LLM 用哪種語言回答。 */
-async function streamChat(
-  messages: { role: string; content: string }[],
-  locale: string,
-  onDelta: (s: string) => void
-): Promise<void> {
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, locale }),
-  });
-  if (!res.body) {
-    onDelta("（暫時連接不上服務）");
-    return;
-  }
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const lines = buf.split("\n");
-    buf = lines.pop() ?? "";
-    for (const line of lines) {
-      const l = line.trim();
-      if (!l.startsWith("data:")) continue;
-      const payload = l.slice(5).trim();
-      if (payload === "[DONE]") return;
-      try {
-        const j = JSON.parse(payload) as { text?: string; error?: string };
-        if (j.text) onDelta(j.text);
-        else if (j.error) onDelta(`\n\n${j.error}`);
-      } catch {
-        /* 忽略不完整片段 */
-      }
-    }
-  }
-}
-
-export function useChat() {
+export function useChat(tx: ChatTransport = defaultTransport) {
   const { m, locale } = useI18n();
   const [messages, setMessages] = useState<ChatMsg[]>([
     { id: uid(), role: "assistant", text: m.greeting },
@@ -103,7 +55,7 @@ export function useChat() {
   async function showIntent(intent: IntentKey, opts: { travellers?: Travellers; routeIndex?: number } = {}) {
     const id = uid();
     append({ id, role: "assistant", cards: [], fromIntent: intent, routeIndex: opts.routeIndex ?? 0 });
-    applyResult(id, await callDispatch({ intent, ...opts }));
+    applyResult(id, await tx.dispatch({ intent, ...opts }));
   }
 
   async function sendIntent(intent: IntentKey) {
@@ -123,7 +75,7 @@ export function useChat() {
     setAwaitingTravellers(null);
     setBusy(true);
     try {
-      const r = await callDispatch({ intent: "transportDeals", travellers });
+      const r = await tx.dispatch({ intent: "transportDeals", travellers });
       if (r.matched) replace(msgId, { text: undefined, cards: r.cards });
     } catch {
       replace(msgId, { text: m.errors.calc });
@@ -137,7 +89,7 @@ export function useChat() {
     const next = nextRouteIndex(msg.routeIndex);
     setBusy(true);
     try {
-      const r = await callDispatch({ intent: msg.fromIntent, routeIndex: next });
+      const r = await tx.dispatch({ intent: msg.fromIntent, routeIndex: next });
       if (r.matched) replace(msg.id, { cards: r.cards, routeIndex: next });
     } finally {
       setBusy(false);
@@ -153,7 +105,7 @@ export function useChat() {
     setBusy(true);
     append({ id: uid(), role: "user", text });
     try {
-      const r = await callDispatch({ text });
+      const r = await tx.dispatch({ text });
       if (r.matched) {
         const id = uid();
         append({ id, role: "assistant", cards: [] });
@@ -164,7 +116,7 @@ export function useChat() {
       // 未命中 → LLM 串流
       const id = uid();
       append({ id, role: "assistant", text: "", streaming: true });
-      await streamChat([...prior, { role: "user", content: text }], locale, (delta) =>
+      await tx.streamChat([...prior, { role: "user", content: text }], locale, (delta) =>
         setMessages((prev) => prev.map((msg) => (msg.id === id ? { ...msg, text: (msg.text ?? "") + delta } : msg)))
       );
       replace(id, { streaming: false });
