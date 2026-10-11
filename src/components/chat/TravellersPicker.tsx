@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Travellers } from "@/lib/types";
 import { useI18n } from "@/components/i18n/LocaleProvider";
-import { Card, Button, Chip, Input } from "@/components/ui";
+import { Surface, Button, Chip, Input } from "@/components/ui";
 
 /** 出行組合快捷選項（契約規則 3）。 */
 export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }) {
@@ -14,7 +14,7 @@ export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }
 
   if (custom) {
     return (
-      <Card className="p-4">
+      <Surface className="p-4">
         <p className="text-sm font-semibold text-ink">{m.travellers.customTitle}</p>
         <div className="mt-3 flex items-center gap-4">
           <label className="text-sm text-ink-2">
@@ -46,7 +46,7 @@ export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }
             {m.travellers.back}
           </Button>
         </div>
-      </Card>
+      </Surface>
     );
   }
 
@@ -57,7 +57,7 @@ export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }
   ];
 
   return (
-    <Card className="p-4">
+    <Surface className="p-4">
       <p className="text-sm font-semibold text-ink">{m.travellers.prompt}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {quick.map((q) => (
@@ -67,6 +67,6 @@ export function TravellersPicker({ onPick }: { onPick: (t: Travellers) => void }
         ))}
         <Chip onClick={() => setCustom(true)}>{m.travellers.custom}</Chip>
       </div>
-    </Card>
+    </Surface>
   );
 }

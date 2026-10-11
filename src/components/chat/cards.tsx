@@ -15,14 +15,14 @@ import { fmt } from "@/lib/i18n/format";
 import { useI18n } from "@/components/i18n/LocaleProvider";
 import { localizeRoute, localizeFood, localizeDeal, localizeBorder } from "@/lib/i18n/content";
 import { weatherTerm, windTerm, adviceKeyFor } from "@/lib/i18n/weather-text";
-import { Card as Surface, Tag, Button, Icon } from "@/components/ui";
+import { Surface, Tag, Button, Icon } from "@/components/ui";
 
 /**
  * 卡片渲染。契约见票 01；型別為可辨識聯合，故各分支的 data 自動收窄。
  *
  * ⚠️ **所有文案都在前端按當前語言渲染**（含天氣建議與優惠交通卡的方案/優惠項），
  *    故切換語言時既有的卡片會即時跟著變。
- * 外殼統一用 ui/Card（＝ Surface），顏色走語義 token，類別 emoji（🍜🛂🎫）保留作內容識別。
+ * 外殼統一用 ui/Surface，顏色走語義 token，類別 emoji（🍜🛂🎫）保留作內容識別。
  */
 
 function RouteCard({ data, onCycleRoute }: { data: RouteCardData; onCycleRoute?: () => void }) {

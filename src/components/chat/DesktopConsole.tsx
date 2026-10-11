@@ -8,7 +8,7 @@ import { TravellersPicker } from "./TravellersPicker";
 import { Composer } from "./Composer";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useI18n } from "@/components/i18n/LocaleProvider";
-import { EmptyState, Icon, Card, CardSkeleton } from "@/components/ui";
+import { EmptyState, Icon, Surface, CardSkeleton } from "@/components/ui";
 
 /** 桌面版：分欄指令台（票 02 的 verdict）。左為動作與對話，右為大卡片舞台。 */
 export function DesktopConsole() {
@@ -73,9 +73,9 @@ export function DesktopConsole() {
           {stagedCards ? (
             stagedCards.cards!.map((c, i) => <CardView key={i} card={c} onCycleRoute={() => cycleRoute(stagedCards)} />)
           ) : pending ? null : busy ? (
-            <Card className="p-4">
+            <Surface className="p-4">
               <CardSkeleton />
-            </Card>
+            </Surface>
           ) : (
             <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-line">
               <EmptyState icon={<Icon name="pin" size={24} />} title={m.desktop.empty} />
