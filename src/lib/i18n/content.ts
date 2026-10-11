@@ -52,58 +52,43 @@ function tr(key: string, locale: Locale, fallback: string): string {
   return (CONTENT_I18N as Overlay)[key]?.[locale] ?? fallback;
 }
 
+/**
+ * 泛型本地化：按 `fields` 清單逐欄查譯文。**欄位清單只住在 `*_FIELDS`**，
+ * 本函式照著念——localize 不可能漏掉一個 `*_FIELDS` 裡有的欄位（這正是本輪要消除的漂移）。
+ * 繁體（正本）或缺值的可選欄位：原樣保留。
+ */
+function localizeFields<T extends object>(
+  e: T,
+  fields: readonly string[],
+  key: (field: string) => string,
+  locale: Locale
+): T {
+  if (locale === "zh-Hant") return e;
+  const out = { ...e } as Record<string, unknown>;
+  for (const f of fields) {
+    const v = (e as Record<string, unknown>)[f];
+    if (typeof v === "string" && v) out[f] = tr(key(f), locale, v);
+  }
+  return out as T;
+}
+
 export function localizeRoute(r: RouteData, locale: Locale): RouteData {
   if (locale === "zh-Hant") return r;
   return {
-    ...r,
-    title: tr(kRoute(r.id, "title"), locale, r.title),
-    theme: tr(kRoute(r.id, "theme"), locale, r.theme),
-    area: tr(kRoute(r.id, "area"), locale, r.area),
-    bestFor: tr(kRoute(r.id, "bestFor"), locale, r.bestFor),
-    tips: r.tips ? tr(kRoute(r.id, "tips"), locale, r.tips) : r.tips,
-    stops: r.stops.map((s, i) => ({
-      ...s,
-      name: tr(kStop(r.id, i, "name"), locale, s.name),
-      area: tr(kStop(r.id, i, "area"), locale, s.area),
-      desc: tr(kStop(r.id, i, "desc"), locale, s.desc),
-    })),
+    ...localizeFields(r, ROUTE_FIELDS, (f) => kRoute(r.id, f), locale),
+    stops: r.stops.map((s, i) => localizeFields(s, STOP_FIELDS, (f) => kStop(r.id, i, f), locale)),
   };
 }
 
 /** 美食以 `FoodData.id` 為鍵（穩定；改名不影響譯文）。 */
 export function localizeFood(f: FoodData, locale: Locale): FoodData {
-  if (locale === "zh-Hant") return f;
-  return {
-    ...f,
-    name: tr(kFood(f.id, "name"), locale, f.name),
-    area: tr(kFood(f.id, "area"), locale, f.area),
-    category: tr(kFood(f.id, "category"), locale, f.category),
-    mustTry: tr(kFood(f.id, "mustTry"), locale, f.mustTry),
-  };
+  return localizeFields(f, FOOD_FIELDS, (field) => kFood(f.id, field), locale);
 }
 
 export function localizeDeal(d: DealData, locale: Locale): DealData {
-  if (locale === "zh-Hant") return d;
-  return {
-    ...d,
-    title: tr(kDeal(d.id, "title"), locale, d.title),
-    merchant: tr(kDeal(d.id, "merchant"), locale, d.merchant),
-    area: tr(kDeal(d.id, "area"), locale, d.area),
-    summary: tr(kDeal(d.id, "summary"), locale, d.summary),
-    validUntil: d.validUntil ? tr(kDeal(d.id, "validUntil"), locale, d.validUntil) : d.validUntil,
-    sourceName: tr(kDeal(d.id, "sourceName"), locale, d.sourceName),
-  };
+  return localizeFields(d, DEAL_FIELDS, (field) => kDeal(d.id, field), locale);
 }
 
 export function localizeBorder(b: BorderData, locale: Locale): BorderData {
-  if (locale === "zh-Hant") return b;
-  return {
-    ...b,
-    nameHk: tr(kBorder(b.id, "nameHk"), locale, b.nameHk),
-    nameSz: b.nameSz ? tr(kBorder(b.id, "nameSz"), locale, b.nameSz) : b.nameSz,
-    hkAccess: tr(kBorder(b.id, "hkAccess"), locale, b.hkAccess),
-    szAccess: tr(kBorder(b.id, "szAccess"), locale, b.szAccess),
-    note: tr(kBorder(b.id, "note"), locale, b.note),
-    tip: b.tip ? tr(kBorder(b.id, "tip"), locale, b.tip) : b.tip,
-  };
+  return localizeFields(b, BORDER_FIELDS, (field) => kBorder(b.id, field), locale);
 }
