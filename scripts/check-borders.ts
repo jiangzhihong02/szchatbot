@@ -75,11 +75,12 @@ async function main() {
     BORDERS.every((b) => /^[0-9:–\-]+$/.test(b.hours))
   );
 
-  // ── 9. 皇崗／落馬洲尚未列入（新皇崗 2026-10-12 啟用，見 issues/12）──
-  //     這是刻意的：拿不到運營方確認前不寫。此斷言是提醒，不是防錯。
+  // ── 9. 皇崗（新皇崗）已列入（2026-10-12 啟用，見 issues/12 + ADR-0004）──
+  //     啟用經港府 2026-10-09 公告確認；入境處實時數據的代碼由預期的 LMC 改為實測的 HGP，
+  //     舊 LMC（落馬洲）已自公開數據消失。此斷言釘住「補列正確、舊碼不復活」。
   check(
-    "LMC（落馬洲/皇崗）尚未列入 —— 待新皇崗啟用確認後補",
-    !used.includes("LMC")
+    "皇崗已列入並用 HGP（舊 LMC 已退役）",
+    used.includes("HGP") && !used.includes("LMC" as BorderLiveCode)
   );
 
   report();

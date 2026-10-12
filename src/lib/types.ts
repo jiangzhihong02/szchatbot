@@ -118,8 +118,9 @@ export type QueueLevel = "normal" | "busy" | "veryBusy" | "maintenance" | "close
  * 放在 `types.ts` 是因為它是**共享詞彙**：`BorderData` 與排隊 adapter 都要用它，
  * 而把它拆去 runtime 模組會造成循環 import。
  * ⚠️ 這也讓「代碼必須是真的」從測試斷言升級成**型別**——打錯字編譯就過不了。
+ * ⚠️ `HGP`（新皇崗，2026-10-12 啟用）取代了舊 `LMC`（落馬洲）——後者已自公開數據消失。
  */
-export const BORDER_LIVE_CODES = ["HYW", "HZM", "LMC", "LSC", "LWS", "MKT", "SBC", "STK"] as const;
+export const BORDER_LIVE_CODES = ["HGP", "HYW", "HZM", "LSC", "LWS", "MKT", "SBC", "STK"] as const;
 export type BorderLiveCode = (typeof BORDER_LIVE_CODES)[number];
 
 /**

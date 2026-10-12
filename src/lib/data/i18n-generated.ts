@@ -503,6 +503,25 @@ export const CONTENT_I18N: Record<string, { "zh-Hans": string; en: string }> = {
     en: "Passenger clearance ends at midnight (only freight runs 24h); private cars need a one-off quota",
   },
 
+  "border.huanggang.nameHk": { "zh-Hans": "新皇岗", en: "New Huanggang（新皇岗）" },
+  "border.huanggang.nameSz": { "zh-Hans": "皇岗", en: "Huanggang（皇岗）" },
+  "border.huanggang.hkAccess": {
+    "zh-Hans": "专营巴士或专线小巴直达口岸大楼（设通宵线）",
+    en: "Franchised bus or green minibus straight to the terminal (overnight routes run too)",
+  },
+  "border.huanggang.szAccess": {
+    "zh-Hans": "深圳地铁 7 号线 皇岗口岸站",
+    en: "Shenzhen Metro Line 7, Huanggang Port station",
+  },
+  "border.huanggang.note": {
+    "zh-Hans": "唯一 24 小时陆路口岸，一地两检一次放行",
+    en: "The only 24-hour land crossing — co-location clearance, cleared once",
+  },
+  "border.huanggang.tip": {
+    "zh-Hans": "2026-10-12 启用，取代落马洲／旧皇岗；旧「皇巴」已停办，改乘专营巴士或小巴直入大楼",
+    en: "Opened 2026-10-12, replacing Lok Ma Chau / old Huanggang; the old shuttle bus is gone — take a franchised bus or minibus into the terminal",
+  },
+
   "border.liantang.nameHk": { "zh-Hans": "香园围", en: "Heung Yuen Wai（香园围）" },
   "border.liantang.nameSz": { "zh-Hans": "莲塘", en: "Liantang（莲塘）" },
   "border.liantang.hkAccess": {
