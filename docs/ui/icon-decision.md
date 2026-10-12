@@ -28,4 +28,4 @@ chrome 圖標（發送／麥克風／搜尋／定位／時鐘／語言／換一�
 
 ## 連帶定下的
 
-- **按鈕質感**：V2「柔和浮起」（淡綠投影 + hover 抬升 1px + active 回落）。token `--shadow-btn` / `--shadow-btn-hover` 於 `globals.css`；`Button` 的 primary/accent 與 `IconButton` 的 primary 套用。
+- **按鈕質感**：V2「柔和浮起」（淡綠投影 + hover 抬升 1px + active 回落）。token `--shadow-btn` / `--shadow-btn-hover` 於 `globals.css`；`Button` 的 primary 與 `IconButton` 的 primary 套用。

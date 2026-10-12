@@ -8,7 +8,7 @@
 
 | 組件 | 取代 | 要點 |
 |---|---|---|
-| `Button` | Composer/TravellersPicker 的 raw button | variant primary/secondary/ghost/accent，size sm/md |
+| `Button` | Composer/TravellersPicker 的 raw button | variant primary/secondary/ghost，size sm/md |
 | `IconButton` | — | 圓形，tone primary/neutral/danger，放 lucide 圖標（發送/麥） |
 | `Card` | 手抄 7× 的卡殼 | `rounded-2xl border-line bg-surface shadow-e1` |
 | `Tag` | `QUEUE_STYLE` + 散落徽章 | tone 映射語義色（排隊/優惠/tips） |

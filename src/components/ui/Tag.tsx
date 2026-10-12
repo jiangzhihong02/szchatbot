@@ -4,7 +4,7 @@ import type { HTMLAttributes, ReactNode } from "react";
  * 狀態標籤（實色文字 + 淡底）。排隊徽章、優惠出處、tips 都用它。
  * tone 映射語義色；不再散用 emerald/amber/rose。
  */
-type Tone = "neutral" | "primary" | "success" | "warning" | "danger" | "info";
+type Tone = "neutral" | "primary" | "success" | "warning" | "danger";
 
 const TONE: Record<Tone, string> = {
   neutral: "bg-sunken text-ink-3",
@@ -12,7 +12,6 @@ const TONE: Record<Tone, string> = {
   success: "bg-success-weak text-success",
   warning: "bg-warning-weak text-warning",
   danger: "bg-danger-weak text-danger",
-  info: "bg-info-weak text-info",
 };
 
 export function Tag({

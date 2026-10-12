@@ -3,17 +3,16 @@ import { FOCUS, PRIMARY_SURFACE } from "./styles";
 
 /**
  * 按鈕 —— 唯一定義。取代散落在 Composer/PresetBar/TravellersPicker 的 raw <button>。
- * variant：primary（旅行綠）／secondary（表面+髮絲描邊）／ghost（純文字）／accent（黑，罕用，最高強度）。
+ * variant：primary（旅行綠）／secondary（表面+髮絲描邊）／ghost（純文字）。
  * 全組件統一：hover、focus-visible ring、disabled opacity-40。
  */
-type Variant = "primary" | "secondary" | "ghost" | "accent";
+type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md";
 
 const VARIANT: Record<Variant, string> = {
   primary: PRIMARY_SURFACE,
   secondary: "bg-surface text-ink border border-line hover:bg-sunken",
   ghost: "bg-transparent text-ink-2 hover:bg-sunken",
-  accent: "bg-accent-ink text-white shadow-btn hover:-translate-y-px hover:opacity-95 hover:shadow-btn-hover",
 };
 
 const SIZE: Record<Size, string> = {

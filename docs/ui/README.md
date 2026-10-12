@@ -41,4 +41,4 @@
 
 - **Spec 軸**：乾淨，零功能安全問題（`src/lib/**` 未改、i18n 鍵未動、六卡契約與 CardView 登記表不變、預設 emoji 全在）。
 - **Standards 軸**：2 硬 + 3 軟。**硬已修**：① 殘留的 off-scale 微字號 `text-[10px]/[11px]` → 收斂為 token `text-2xs`（`--text-2xs` 於 globals.css）；② `Input` 的 `focus:` → `focus-visible:`。**軟已修**：抽 `ui/styles.ts`（`FOCUS` / `PRIMARY_SURFACE`）去除 Button↔IconButton 重複串；修 `IconButton` 過時的 lucide 註釋。
-- **留著**：`Button variant="accent"` / `Tag tone="info"` 兩個暫無調用方的變體（備選，低成本保留）；優惠項未加 `Tag`（「deal badge」理解為已改的路線主題標籤）。
+- **移除（2026-10-12）**：`Button variant="accent"` / `Tag tone="info"` 兩個無調用方的變體已刪（原作備選低成本保留，確認不需要後移除；CSS token `accent-ink` / `info-weak` 暫留於 globals.css，未清）。優惠項仍未加 `Tag`（「deal badge」理解為已改的路線主題標籤），維持不變。
